@@ -18,19 +18,42 @@ model User {
   twitterId      String?             @unique @map("twitter_id")
   githubId       String?             @unique @map("github_id")
   configurations SMTPConfiguration[]
+  templates      EmailTemplate[]
 
   @@map("users")
 }
 
 model SMTPConfiguration {
-  id       String @id @default(uuid()) @db.Uuid
-  name     String
-  host     String
-  port     Int
-  username String
-  password String
-  userId   String @map("user_id") @db.Uuid
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String          @id @default(uuid()) @db.Uuid
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @default(now()) @updatedAt @map("updated_at")
+  name      String
+  host      String
+  port      Int
+  username  String
+  password  String
+  userId    String          @map("user_id") @db.Uuid
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templates EmailTemplate[]
 
+  @@index(userId)
   @@map("smtp_configurations")
+}
+
+model EmailTemplate {
+  id              String             @id @default(uuid()) @db.Uuid
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @default(now()) @updatedAt @map("updated_at")
+  subject         String
+  body            String?
+  emailColumns    String[]           @map("email_columns")
+  data            Json               @default("{}")
+  userId          String             @map("user_id") @db.Uuid
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  configurationId String?            @map("configuration_id") @db.Uuid
+  configuration   SMTPConfiguration? @relation(fields: [configurationId], references: [id], onDelete: SetNull)
+
+  @@index(userId)
+  @@index(configurationId)
+  @@map("email_templates")
 }
