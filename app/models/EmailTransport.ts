@@ -25,6 +25,15 @@ export function findById(id: string, userId: string) {
   return prisma.emailTransport.findUnique({
     rejectOnNotFound: true,
     where: { id_userId: { id, userId } },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      host: true,
+      port: true,
+      username: true,
+      password: true,
+    },
   });
 }
 

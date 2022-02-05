@@ -44,12 +44,25 @@ const CSV = z.object({
 });
 
 export async function findById(id: string, userId: string) {
-  const template = await prisma.emailTemplate.findUnique({
+  const { user, ...template } = await prisma.emailTemplate.findUnique({
     rejectOnNotFound: true,
     where: { id_userId: { id, userId } },
+    select: {
+      id: true,
+      subject: true,
+      body: true,
+      emailColumns: true,
+      data: true,
+      transportId: true,
+      user: { select: { transports: { select: { id: true, name: true } } } },
+    },
   });
 
-  return { ...template, data: CSV.parse(template.data) };
+  return {
+    ...template,
+    data: CSV.parse(template.data),
+    transports: user.transports,
+  };
 }
 
 export function create(userId: string, form: FormData) {

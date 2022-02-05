@@ -41,9 +41,11 @@ export const action: ActionFunction = async ({ request, params }) => {
   return result;
 };
 
+type LoaderData = Awaited<ReturnType<typeof EmailTransport.findById>>;
+
 export default function EditEmailTransportRoute() {
   const transition = useTransition();
-  const data = useLoaderData<EmailTransport.Schema & { id: string }>();
+  const data = useLoaderData<LoaderData>();
   const actionData = useActionData<{ errors?: EmailTransport.Errors }>();
 
   return (

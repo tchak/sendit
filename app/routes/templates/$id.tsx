@@ -4,7 +4,6 @@ import { SkipNavContent } from '@reach/skip-nav';
 import { z } from 'zod';
 
 import { authenticator } from '~/util/auth.server';
-import * as EmailTransport from '~/models/EmailTransport';
 import * as EmailTemplate from '~/models/EmailTemplate';
 import { Button, LinkButton } from '~/components/Form';
 import { Spinner } from '~/components/Spinner';
@@ -20,11 +19,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: '/signin',
   });
-  const transports = await EmailTransport.findAll(user.id);
-  return {
-    transports,
-    template: await EmailTemplate.findById(templateId, user.id),
-  };
+  return EmailTemplate.findById(templateId, user.id);
 };
 export const action: ActionFunction = async ({ request, params }) => {
   const templateId = z.string().parse(params.id);
@@ -45,15 +40,12 @@ type LoaderData = Awaited<ReturnType<typeof EmailTemplate.findById>>;
 
 export default function EditEmailTransportRoute() {
   const transition = useTransition();
-  const { template, transports } = useLoaderData<{
-    transports: { id: string; name: string }[];
-    template: LoaderData;
-  }>();
+  const data = useLoaderData<LoaderData>();
   const actionData = useActionData<{ errors?: EmailTemplate.UpdateErrors }>();
   return (
     <div>
       <Header title="Sendit">
-        <Breadcrumb title={template.subject} to={`/templates/${template.id}`} />
+        <Breadcrumb title={data.subject} to={`/templates/${data.id}`} />
       </Header>
       <SkipNavContent />
       <Form
@@ -66,13 +58,13 @@ export default function EditEmailTransportRoute() {
         <EmailTemplateUpdateFields
           legend="Edit Email Template"
           id="email-template"
-          values={template}
+          values={data}
           options={{
-            emailColumns: template.data.meta.fields.map((value) => ({
+            emailColumns: data.data.meta.fields.map((value) => ({
               label: value,
               value,
             })),
-            transportId: transports.map(({ id: value, name: label }) => ({
+            transportId: data.transports.map(({ id: value, name: label }) => ({
               label,
               value,
             })),
