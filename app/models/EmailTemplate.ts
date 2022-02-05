@@ -57,10 +57,24 @@ export async function findById(id: string, userId: string) {
       user: { select: { transports: { select: { id: true, name: true } } } },
     },
   });
+  const data = CSV.parse(template.data);
+  const fields = data.meta.fields;
+  const messages = data.data.slice(0, 3).map((row) => ({
+    to: row[template.emailColumns[0]],
+    subject: template.subject,
+    body: fields
+      .map((name) => [`{${name}}`, row[name]] as const)
+      .reduce(
+        (body, [pattern, value]) =>
+          value ? body.replace(pattern, String(value)) : body,
+        template.body ?? ''
+      ),
+  }));
 
   return {
     ...template,
-    data: CSV.parse(template.data),
+    fields,
+    messages,
     transports: user.transports,
   };
 }

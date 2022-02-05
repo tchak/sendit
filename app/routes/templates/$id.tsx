@@ -42,6 +42,7 @@ export default function EditEmailTransportRoute() {
   const transition = useTransition();
   const data = useLoaderData<LoaderData>();
   const actionData = useActionData<{ errors?: EmailTemplate.UpdateErrors }>();
+
   return (
     <div>
       <Header title="Sendit">
@@ -60,7 +61,7 @@ export default function EditEmailTransportRoute() {
           id="email-template"
           values={data}
           options={{
-            emailColumns: data.data.meta.fields.map((value) => ({
+            emailColumns: data.fields.map((value) => ({
               label: value,
               value,
             })),
@@ -93,6 +94,38 @@ export default function EditEmailTransportRoute() {
           </Button>
         </div>
       </Form>
+
+      <ul className="mt-6">
+        {data.messages.map((message) => (
+          <EmailPreview message={message} />
+        ))}
+      </ul>
     </div>
+  );
+}
+
+function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
+  return (
+    <li className="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
+      <div className="px-2 py-3 sm:p-0">
+        <dl className="sm:divide-y sm:divide-gray-200">
+          <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+            <dt className="text-sm font-medium text-gray-500">to:</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              {message.to}
+            </dd>
+          </div>
+          <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+            <dt className="text-sm font-medium text-gray-500">subject:</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              {message.subject}
+            </dd>
+          </div>
+          <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+            <p className="text-sm">{message.body}</p>
+          </div>
+        </dl>
+      </div>
+    </li>
   );
 }
