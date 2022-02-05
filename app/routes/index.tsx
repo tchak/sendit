@@ -1,30 +1,77 @@
 import type { MetaFunction, LoaderFunction } from 'remix';
-import { Link, useLoaderData } from 'remix';
+import { useLoaderData } from 'remix';
 import { SkipNavContent } from '@reach/skip-nav';
 
-import type { User } from '~/models/user';
+import * as User from '~/models/User';
 import { authenticator } from '~/util/auth.server';
+import {
+  AddEmailTemplateCard,
+  EmailTemplateCard,
+} from '~/components/EmailTemplateCard';
+import {
+  AddEmailTransportCard,
+  EmailTransportCard,
+} from '~/components/EmailTransportCard';
+import { Header } from '~/components/Header';
+
+export type LoaderData = Awaited<
+  ReturnType<typeof User.findWithTransportsAndTemplates>
+>;
 
 export const meta: MetaFunction = () => ({ title: 'Sendit' });
 export const handle = { hydrate: true };
-export const loader: LoaderFunction = ({ request }) =>
-  authenticator.isAuthenticated(request, { failureRedirect: '/signin' });
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: '/signin',
+  });
+
+  return User.findWithTransportsAndTemplates(user.id);
+};
 
 export default function IndexRoute() {
-  const user = useLoaderData<User>();
+  const user = useLoaderData<LoaderData>();
+  const hasTransports = user.transports.length > 0;
+
   return (
     <div>
-      <h1 className="py-6">Sendit</h1>
+      <Header title="Sendit" />
       <SkipNavContent />
 
-      <p className="mb-4 text-base">Hello {user.name}</p>
+      <div>
+        {hasTransports ? (
+          <div className="mb-5">
+            <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+              Email Templates
+            </h2>
 
-      <Link
-        to="/signout"
-        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-      >
-        Sign Out
-      </Link>
+            <ul
+              role="list"
+              className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {user.templates.map((template) => (
+                <EmailTemplateCard key={template.id} {...template} />
+              ))}
+              <AddEmailTemplateCard />
+            </ul>
+          </div>
+        ) : null}
+
+        <div>
+          <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+            Email Transports
+          </h2>
+
+          <ul
+            role="list"
+            className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {user.transports.map((transports) => (
+              <EmailTransportCard key={transports.id} {...transports} />
+            ))}
+            <AddEmailTransportCard />
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

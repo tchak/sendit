@@ -11,23 +11,24 @@ datasource db {
 }
 
 model User {
-  id             String              @id @default(uuid()) @db.Uuid
-  name           String
-  createdAt      DateTime            @default(now()) @map("created_at")
-  updatedAt      DateTime            @default(now()) @updatedAt @map("updated_at")
-  twitterId      String?             @unique @map("twitter_id")
-  githubId       String?             @unique @map("github_id")
-  configurations SMTPConfiguration[]
-  templates      EmailTemplate[]
+  id         String           @id @default(uuid()) @db.Uuid
+  name       String
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @default(now()) @updatedAt @map("updated_at")
+  twitterId  String?          @unique @map("twitter_id")
+  githubId   String?          @unique @map("github_id")
+  transports EmailTransport[]
+  templates  EmailTemplate[]
 
   @@map("users")
 }
 
-model SMTPConfiguration {
+model EmailTransport {
   id        String          @id @default(uuid()) @db.Uuid
   createdAt DateTime        @default(now()) @map("created_at")
   updatedAt DateTime        @default(now()) @updatedAt @map("updated_at")
   name      String
+  email     String
   host      String
   port      Int
   username  String
@@ -36,24 +37,26 @@ model SMTPConfiguration {
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   templates EmailTemplate[]
 
+  @@unique([id, userId])
   @@index(userId)
-  @@map("smtp_configurations")
+  @@map("email_transports")
 }
 
 model EmailTemplate {
-  id              String             @id @default(uuid()) @db.Uuid
-  createdAt       DateTime           @default(now()) @map("created_at")
-  updatedAt       DateTime           @default(now()) @updatedAt @map("updated_at")
-  subject         String
-  body            String?
-  emailColumns    String[]           @map("email_columns")
-  data            Json               @default("{}")
-  userId          String             @map("user_id") @db.Uuid
-  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  configurationId String?            @map("configuration_id") @db.Uuid
-  configuration   SMTPConfiguration? @relation(fields: [configurationId], references: [id], onDelete: SetNull)
+  id           String          @id @default(uuid()) @db.Uuid
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @default(now()) @updatedAt @map("updated_at")
+  subject      String
+  body         String?
+  emailColumns String[]        @map("email_columns")
+  data         Json            @default("{}")
+  userId       String          @map("user_id") @db.Uuid
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transportId  String?         @map("transport_id") @db.Uuid
+  transport    EmailTransport? @relation(fields: [transportId], references: [id], onDelete: SetNull)
 
+  @@unique([id, userId])
   @@index(userId)
-  @@index(configurationId)
+  @@index(transportId)
   @@map("email_templates")
 }

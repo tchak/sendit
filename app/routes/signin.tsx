@@ -3,6 +3,7 @@ import { useTransition, Form, useLoaderData } from 'remix';
 import { SkipNavContent } from '@reach/skip-nav';
 
 import { authenticator } from '~/util/auth.server';
+import { Header } from '~/components/Header';
 
 export const meta: MetaFunction = () => ({ title: 'Sign In' });
 export const handle = { hydrate: true };
@@ -27,7 +28,7 @@ export default function SignInRoute() {
 
   return (
     <div>
-      <h1 className="py-6">Sign In</h1>
+      <Header title="Sign In" />
       <SkipNavContent />
       {actions.map(({ name, action }) => (
         <Form

@@ -10,13 +10,9 @@ import type { SessionStorage } from 'remix';
 
 import { sessionStorage } from './session.server';
 import { getEnv } from '.';
-import {
-  User,
-  findOrCreateByGithubId,
-  findOrCreateByTwitterId,
-} from '~/models/user';
+import * as User from '~/models/User';
 
-export const authenticator = new Authenticator<User>(sessionStorage);
+export const authenticator = new Authenticator<User.Schema>(sessionStorage);
 
 authenticator.use(
   new GitHubStrategy(
@@ -28,7 +24,8 @@ authenticator.use(
         'http://localhost:3000/auth/github/callback'
       ),
     },
-    ({ profile }) => findOrCreateByGithubId(profile.id, profile.displayName)
+    ({ profile }) =>
+      User.findOrCreateByGithubId(profile.id, profile.displayName)
   )
 );
 
@@ -42,7 +39,8 @@ authenticator.use(
         'http://localhost:3000/auth/twitter/callback'
       ),
     },
-    ({ profile }) => findOrCreateByTwitterId(String(profile.id), profile.name)
+    ({ profile }) =>
+      User.findOrCreateByTwitterId(String(profile.id), profile.name)
   )
 );
 
@@ -64,6 +62,6 @@ class DevStrategy<User> extends Strategy<User, void> {
 
 if (process.env.NODE_ENV != 'production') {
   authenticator.use(
-    new DevStrategy(() => findOrCreateByTwitterId('dev', 'Test User'))
+    new DevStrategy(() => User.findOrCreateByTwitterId('dev', 'Test User'))
   );
 }

@@ -1,11 +1,11 @@
 import { prisma } from '~/util/db.server';
 
-export type User = { id: string; name: string };
+export type Schema = { id: string; name: string };
 
 export async function findOrCreateByGithubId(
   githubId: string,
   name: string
-): Promise<User> {
+): Promise<Schema> {
   try {
     return await prisma.user.create({
       data: { githubId, name },
@@ -23,7 +23,7 @@ export async function findOrCreateByGithubId(
 export async function findOrCreateByTwitterId(
   twitterId: string,
   name: string
-): Promise<User> {
+): Promise<Schema> {
   try {
     return await prisma.user.create({
       data: { twitterId, name },
@@ -36,4 +36,15 @@ export async function findOrCreateByTwitterId(
       select: { id: true, name: true },
     });
   }
+}
+
+export function findWithTransportsAndTemplates(userId: string) {
+  return prisma.user.findUnique({
+    rejectOnNotFound: true,
+    where: { id: userId },
+    select: {
+      transports: { select: { id: true, name: true, email: true } },
+      templates: { select: { id: true, subject: true } },
+    },
+  });
 }
