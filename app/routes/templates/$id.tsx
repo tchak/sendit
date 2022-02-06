@@ -118,7 +118,9 @@ function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
             </dd>
           </div>
           <div className="py-2 sm:py-3 sm:px-3">
-            <p className="text-sm">{message.body}</p>
+            <p className="text-sm">
+              <pre>{message.text}</pre>
+            </p>
           </div>
         </dl>
       </div>

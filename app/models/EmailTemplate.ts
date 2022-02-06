@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import Papa from 'papaparse';
+import mjml2html from 'mjml';
+import { convert as htmlToText } from 'html-to-text';
 
 import { getErrors, Errors } from '~/util/form';
 import { prisma } from '~/util/db.server';
@@ -54,40 +56,50 @@ const SchemaUpdate = z
   .partial();
 
 export async function findById(id: string, userId: string) {
-  const { user, ...template } = await prisma.emailTemplate.findUnique({
-    rejectOnNotFound: true,
-    where: { id_userId: { id, userId } },
-    select: {
-      id: true,
-      subject: true,
-      body: true,
-      emailColumns: true,
-      data: true,
-      transportId: true,
-      user: {
-        select: {
-          transports: {
-            orderBy: { createdAt: 'asc' },
-            select: { id: true, name: true },
+  const { user, transport, ...template } =
+    await prisma.emailTemplate.findUnique({
+      rejectOnNotFound: true,
+      where: { id_userId: { id, userId } },
+      select: {
+        id: true,
+        subject: true,
+        body: true,
+        emailColumns: true,
+        data: true,
+        transport: {
+          select: { id: true, email: true },
+        },
+        user: {
+          select: {
+            transports: {
+              orderBy: { createdAt: 'asc' },
+              select: { id: true, name: true },
+            },
           },
         },
       },
-    },
-  });
+    });
   const data = CSV.parse(template.data);
   const body = Body.parse(template.body);
   const fields = data.meta.fields;
   const messages = data.data
     .filter((row) => isValidRow(body, row))
     .slice(0, 3)
-    .map((row) => ({
-      to: template.emailColumns.map((name) => row[name]).join(', '),
-      subject: template.subject,
-      body: renderBody(body, row),
-    }));
+    .map((row) => {
+      const html = renderHTML(template.subject, body, row);
+      const text = htmlToText(html, { wordwrap: false });
+      return {
+        from: transport?.email ?? '',
+        to: template.emailColumns.map((name) => row[name]).join(', '),
+        subject: template.subject,
+        html,
+        text,
+      };
+    });
 
   return {
     ...template,
+    transportId: transport?.id,
     data,
     body,
     fields,
@@ -140,16 +152,44 @@ function renderBody(body: Body, row: Row): string {
   return body
     .map((node) => {
       if (isList(node)) {
-        return node.children
+        const list = node.children
           .map((node) =>
             node.children.map((node) => renderLeaf(node, row)).join('')
           )
-          .map((text) => `* ${text}`)
-          .join('\n');
+          .map((text) => `<li>${text}</li>`)
+          .join('');
+        return `<mj-text><ul>${list}</ul></mj-text>`;
       }
-      return node.children.map((node) => renderLeaf(node, row)).join('');
+
+      const block = node.children.map((node) => renderLeaf(node, row)).join('');
+      return `<mj-text>${block}</mj-text>`;
     })
-    .join('\n');
+    .join('');
+}
+
+function renderHTML(
+  subject: string,
+  body: Body,
+  row: Row,
+  styles: Record<string, string> = {}
+) {
+  return mjml2html(`<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-text ${Object.entries(styles)
+        .map(([name, value]) => `${name}="${value}"`)
+        .join(' ')} />
+    </mj-attributes>
+    <mj-title>${subject}</mj-title>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        ${renderBody(body, row)}
+      </mj-column>
+    </mj-section>
+  </mj-body>
+  </mjml>`).html;
 }
 
 function renderText(node: FormattedText) {
