@@ -181,9 +181,12 @@ export function TemplatedEditor<Name extends string = string>({
             />
             <ul className="mt-1">
               {tags.map((tag) => (
-                <span className="mr-1 mb-0.5 inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
+                <li
+                  key={tag}
+                  className="mr-1 mb-0.5 inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800"
+                >
                   {tag}
-                </span>
+                </li>
               ))}
             </ul>
           </div>
