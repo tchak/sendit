@@ -4,6 +4,11 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 export type Email = SendMailOptions;
 export type SMTPOptions = SMTPTransport.Options;
 
+export async function verify(smtp: SMTPOptions) {
+  const transport = getTransport(smtp);
+  return transport.verify().catch(() => false);
+}
+
 export async function sendmail({
   smtp,
   email,
@@ -12,23 +17,27 @@ export async function sendmail({
   email: Email;
 }): Promise<boolean | Error> {
   const transport = getTransport(smtp);
-  const ok = await transport.verify();
 
-  if (ok) {
-    try {
+  try {
+    const ok = await transport.verify();
+    if (ok) {
       await transport.sendMail(email);
       return true;
-    } catch (error) {
-      return error as Error;
+    } else {
+      return false;
     }
-  } else {
-    return false;
+  } catch (error) {
+    return error as Error;
   }
 }
+
+const TIMEOUT = 3000;
 
 function getTransport(smtp: SMTPOptions) {
   return createTransport({
     ...smtp,
+    connectionTimeout: TIMEOUT,
+    greetingTimeout: TIMEOUT,
     secure: true,
     tls: {
       rejectUnauthorized: true,

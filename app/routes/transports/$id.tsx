@@ -4,14 +4,21 @@ import type {
   ActionFunction,
   RouteHandle,
 } from 'remix';
-import { Form, useTransition, useLoaderData, useActionData } from 'remix';
+import {
+  Form,
+  useTransition,
+  useLoaderData,
+  useActionData,
+  useFetcher,
+} from 'remix';
+import { useEffect, useState } from 'react';
 import { SkipNavContent } from '@reach/skip-nav';
 import { z } from 'zod';
 
 import { authenticator } from '~/util/auth.server';
 import * as EmailTransport from '~/models/EmailTransport';
 import { Button, LinkButton } from '~/components/Form';
-import { Spinner } from '~/components/Spinner';
+import { StateIcon, State } from '~/components/Spinner';
 import { EmailTransportFields } from '~/components/EmailTransportForm';
 import { Header, Breadcrumb } from '~/components/Header';
 
@@ -33,7 +40,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   });
 
   const form = await request.formData();
-  const result = await EmailTransport.update(user.id, transportId, form);
+  const result = await EmailTransport.update(transportId, user.id, form);
 
   if ('id' in result) {
     return null;
@@ -48,6 +55,7 @@ export default function EditEmailTransportRoute() {
   const transition = useTransition();
   const data = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+  const [state, verify] = useVerifyTransport(data.id);
 
   return (
     <div>
@@ -70,26 +78,48 @@ export default function EditEmailTransportRoute() {
           disabled={transition.state == 'submitting'}
         />
 
-        <div className="flex items-center justify-end">
-          <LinkButton to="/" className="mr-2">
-            Cancel
-          </LinkButton>
-          <Button
-            type="submit"
-            disabled={transition.state == 'submitting'}
-            primary
-          >
-            {transition.state == 'submitting' ? (
-              <>
-                <Spinner />
-                Saving...
-              </>
-            ) : (
-              'Save'
-            )}
+        <div className="flex items-center justify-between">
+          <Button onClick={() => verify()} className="mr-2" primary>
+            <StateIcon state={state} />
+            Verify
           </Button>
+          <div className="flex items-center">
+            <Button
+              type="submit"
+              disabled={transition.state == 'submitting'}
+              primary
+            >
+              <StateIcon
+                state={transition.state == 'submitting' ? 'loading' : 'idle'}
+              />
+              {transition.state == 'submitting' ? 'Saving...' : 'Save'}
+            </Button>
+            <LinkButton to="/" className="ml-2">
+              Cancel
+            </LinkButton>
+          </div>
         </div>
       </Form>
     </div>
   );
+}
+
+function useVerifyTransport(id: string): [State, () => void] {
+  const fetcher = useFetcher<{ ok: boolean }>();
+  const [state, setState] = useState<State>('idle');
+  useEffect(() => {
+    if (fetcher.type == 'done') {
+      setState(fetcher.data.ok ? 'ok' : 'error');
+    } else if (fetcher.type == 'normalLoad') {
+      setState('loading');
+    } else {
+      setState('idle');
+    }
+  }, [fetcher.type, fetcher.data]);
+  return [
+    state,
+    () => {
+      fetcher.load(`/transports/${id}/verify`);
+    },
+  ];
 }

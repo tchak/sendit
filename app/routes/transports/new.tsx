@@ -5,7 +5,7 @@ import { SkipNavContent } from '@reach/skip-nav';
 import { authenticator } from '~/util/auth.server';
 import * as EmailTransport from '~/models/EmailTransport';
 import { Button, LinkButton } from '~/components/Form';
-import { Spinner } from '~/components/Spinner';
+import { StateIcon } from '~/components/Spinner';
 import { EmailTransportFields } from '~/components/EmailTransportForm';
 import { Header, Breadcrumb } from '~/components/Header';
 
@@ -53,23 +53,19 @@ export default function NewEmailTransportRoute() {
           disabled={transition.state == 'submitting'}
         />
         <div className="flex items-center justify-end">
-          <LinkButton to="/" className="mr-2">
-            Cancel
-          </LinkButton>
           <Button
             type="submit"
             disabled={transition.state == 'submitting'}
             primary
           >
-            {transition.state == 'submitting' ? (
-              <>
-                <Spinner />
-                Saving...
-              </>
-            ) : (
-              'Save'
-            )}
+            <StateIcon
+              state={transition.state == 'submitting' ? 'loading' : 'idle'}
+            />
+            {transition.state == 'submitting' ? 'Saving...' : 'Save'}
           </Button>
+          <LinkButton to="/" className="ml-2">
+            Cancel
+          </LinkButton>
         </div>
       </Form>
     </div>

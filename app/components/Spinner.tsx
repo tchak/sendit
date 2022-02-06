@@ -1,7 +1,25 @@
-export function Spinner() {
+import clsx from 'clsx';
+import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/solid';
+
+export type State = 'ok' | 'error' | 'loading' | 'idle';
+
+export function StateIcon({ state }: { state: State }) {
+  switch (state) {
+    case 'ok':
+      return <CheckCircleIcon className="h-4 w-4 text-green-500 mr-2" />;
+    case 'error':
+      return <ExclamationCircleIcon className="h-4 w-4 text-red-500 mr-2" />;
+    case 'loading':
+      return <Spinner className="h-4 w-4 text-white mr-2" />;
+    default:
+      return null;
+  }
+}
+
+function Spinner({ className }: { className?: string }) {
   return (
     <svg
-      className="hidden motion-safe:block animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+      className={clsx('hidden motion-safe:block animate-spin', className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
