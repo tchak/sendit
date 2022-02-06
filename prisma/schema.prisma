@@ -54,9 +54,35 @@ model EmailTemplate {
   user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   transportId  String?         @map("transport_id") @db.Uuid
   transport    EmailTransport? @relation(fields: [transportId], references: [id], onDelete: SetNull)
+  messages     EmailMessage[]
 
   @@unique([id, userId])
   @@index(userId)
   @@index(transportId)
   @@map("email_templates")
+}
+
+enum EmailMessageState {
+  Pending
+  Sent
+  Error
+}
+
+model EmailMessage {
+  id               String            @id @default(uuid()) @db.Uuid
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @default(now()) @updatedAt @map("updated_at")
+  sentAt           DateTime?         @map("sent_at")
+  from             String
+  to               String[]
+  subject          String
+  html             String
+  text             String
+  lastErrorMessage String?
+  state            EmailMessageState @default(Pending)
+  templateId       String            @map("template_id") @db.Uuid
+  template         EmailTemplate     @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index(templateId)
+  @@map("email_messages")
 }

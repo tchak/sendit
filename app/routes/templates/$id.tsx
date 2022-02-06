@@ -93,7 +93,7 @@ export default function EditEmailTransportRoute() {
 
       <ul className="mt-6">
         {data.messages.map((message) => (
-          <EmailPreview message={message} />
+          <EmailPreview key={message.to.join(',')} message={message} />
         ))}
       </ul>
     </div>
@@ -108,7 +108,7 @@ function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
           <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
             <dt className="text-sm font-medium text-gray-500">to:</dt>
             <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {message.to}
+              {message.to.join(',')}
             </dd>
           </div>
           <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
@@ -118,9 +118,9 @@ function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
             </dd>
           </div>
           <div className="py-2 sm:py-3 sm:px-3">
-            <p className="text-sm">
+            <dd className="text-sm">
               <pre>{message.text}</pre>
-            </p>
+            </dd>
           </div>
         </dl>
       </div>

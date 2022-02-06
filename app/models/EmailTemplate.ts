@@ -21,6 +21,7 @@ const CSV = z.object({
   data: Row.array(),
   meta: z.object({ delimiter: z.string(), fields: z.string().array() }),
 });
+type CSV = z.infer<typeof CSV>;
 
 const Schema = z.object({
   subject: z.string(),
@@ -56,54 +57,35 @@ const SchemaUpdate = z
   .partial();
 
 export async function findById(id: string, userId: string) {
-  const { user, transport, ...template } =
-    await prisma.emailTemplate.findUnique({
-      rejectOnNotFound: true,
-      where: { id_userId: { id, userId } },
-      select: {
-        id: true,
-        subject: true,
-        body: true,
-        emailColumns: true,
-        data: true,
-        transport: {
-          select: { id: true, email: true },
-        },
-        user: {
-          select: {
-            transports: {
-              orderBy: { createdAt: 'asc' },
-              select: { id: true, name: true },
-            },
+  const { user, ...template } = await prisma.emailTemplate.findUnique({
+    rejectOnNotFound: true,
+    where: { id_userId: { id, userId } },
+    select: {
+      id: true,
+      subject: true,
+      body: true,
+      emailColumns: true,
+      data: true,
+      transportId: true,
+      messages: { select: { to: true, subject: true, text: true }, take: 3 },
+      user: {
+        select: {
+          transports: {
+            orderBy: { createdAt: 'asc' },
+            select: { id: true, name: true },
           },
         },
       },
-    });
+    },
+  });
   const data = CSV.parse(template.data);
   const body = Body.parse(template.body);
-  const fields = data.meta.fields;
-  const messages = data.data
-    .filter((row) => isValidRow(body, row))
-    .slice(0, 3)
-    .map((row) => {
-      const html = renderHTML(template.subject, body, row);
-      const text = htmlToText(html, { wordwrap: false });
-      return {
-        from: transport?.email ?? '',
-        to: template.emailColumns.map((name) => row[name]).join(', '),
-        subject: template.subject,
-        html,
-        text,
-      };
-    });
 
   return {
     ...template,
-    transportId: transport?.id,
     data,
     body,
-    fields,
-    messages,
+    fields: data.meta.fields,
     transports: user.transports,
   };
 }
@@ -125,18 +107,73 @@ export function create(userId: string, form: FormData) {
   }
 }
 
-export function update(id: string, userId: string, form: FormData) {
+export async function update(id: string, userId: string, form: FormData) {
   const result = SchemaUpdate.safeParse(Object.fromEntries(form));
 
   if (result.success) {
-    return prisma.emailTemplate.update({
+    const template = await prisma.emailTemplate.update({
       where: { id_userId: { id, userId } },
       data: { userId, ...result.data },
-      select: { id: true },
+      select: {
+        id: true,
+        subject: true,
+        body: true,
+        data: true,
+        emailColumns: true,
+        transport: { select: { email: true } },
+      },
     });
+    await prisma.emailMessage.deleteMany({
+      where: { templateId: template.id },
+    });
+    if (template.transport) {
+      const messages = getMessages({
+        from: template.transport.email,
+        subject: template.subject,
+        body: Body.parse(template.body),
+        data: CSV.parse(template.data),
+        emailColumns: template.emailColumns,
+      });
+      await prisma.emailMessage.createMany({
+        data: messages.map((message) => ({
+          ...message,
+          templateId: template.id,
+        })),
+      });
+    }
+
+    return { id: template.id };
   } else {
     return { errors: getErrors(result.error, form) };
   }
+}
+
+function getMessages({
+  subject,
+  from,
+  emailColumns,
+  body,
+  data,
+}: {
+  subject: string;
+  from: string;
+  emailColumns: string[];
+  data: CSV;
+  body: Body;
+}) {
+  return data.data
+    .filter((row) => isValidRow(body, row))
+    .map((row) => {
+      const html = renderHTML(subject, body, row);
+      const text = htmlToText(html, { wordwrap: false });
+      return {
+        from,
+        to: emailColumns.map((name) => row[name]).join(', '),
+        subject,
+        html,
+        text,
+      };
+    });
 }
 
 function isValidRow(body: Body, row: Row) {
