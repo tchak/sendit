@@ -1,6 +1,9 @@
-import { z, ZodError } from 'zod';
+import { z } from 'zod';
 
+import { getErrors, Errors } from '~/util/form';
 import { prisma } from '~/util/db.server';
+
+export type ActionData = { errors?: Errors<Schema> };
 
 const Schema = z.object({
   name: z.string().min(1),
@@ -16,10 +19,6 @@ const Schema = z.object({
   password: z.string().min(1),
 });
 export type Schema = z.infer<typeof Schema>;
-export type Errors = Record<
-  keyof Schema,
-  { message?: string; value?: string } | undefined
->;
 
 export function findById(id: string, userId: string) {
   return prisma.emailTransport.findUnique({
@@ -40,6 +39,7 @@ export function findById(id: string, userId: string) {
 export function findAll(userId: string) {
   return prisma.emailTransport.findMany({
     where: { userId },
+    orderBy: { createdAt: 'asc' },
     select: { id: true, name: true },
   });
 }
@@ -69,15 +69,4 @@ export function update(id: string, userId: string, form: FormData) {
   } else {
     return { errors: getErrors(result.error, form) };
   }
-}
-
-function getErrors(error: ZodError, formData: FormData): Errors {
-  const errors: Record<string, unknown> = {};
-  const issues = Object.fromEntries(
-    error.issues.map(({ message, path }) => [path[0], message])
-  );
-  for (const [name, value] of formData) {
-    errors[name] = { value: String(value), message: issues[name] };
-  }
-  return errors as Errors;
 }

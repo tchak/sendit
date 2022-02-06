@@ -1,58 +1,36 @@
-import type { FormControlProps, SelectProps } from './Form';
-import type { Schema, Errors } from '~/models/EmailTransport';
-import { Input } from './form';
-
-const FIELDS: FormControlProps<keyof Schema>[] = [
-  { label: 'Name', name: 'name', required: true },
-  { label: 'Email', name: 'email', type: 'email', required: true },
-  { label: 'Host', name: 'host', required: true },
-  { label: 'Port', name: 'port', type: 'number', required: true },
-  { label: 'Username', name: 'username', required: true },
-  { label: 'Password', name: 'password', type: 'password', required: true },
-];
+import type { Schema } from '~/models/EmailTransport';
+import { Input, Fieldset } from './Form';
+import { getProps, Values, Errors } from '~/util/form';
 
 export function EmailTransportFields({
   id,
   legend,
-  values,
-  errors,
-  options,
-  disabled,
+  ...props
 }: {
   id: string;
   legend: string;
-  values?: Partial<Schema> | null;
-  errors?: Errors;
+  values?: Values<Schema>;
+  errors?: Errors<Schema>;
   disabled?: boolean;
-  options?: Partial<Record<keyof Schema, SelectProps['options'] | undefined>>;
 }) {
-  const fields = FIELDS.map(({ name, ...props }) => {
-    const errorMessage = errors && errors[name]?.message;
-    const defaultValue = errorMessage
-      ? (errors && errors[name]?.value) ?? (values && values[name]) ?? undefined
-      : (values && values[name]) ?? undefined;
-    return {
-      disabled,
-      name,
-      id: name,
-      errorMessage,
-      ...(typeof defaultValue == 'boolean'
-        ? { defaultChecked: defaultValue, value: 'true' }
-        : { defaultValue }),
-      ...props,
-      ...(options && options[name] ? { options: options[name] } : undefined),
-    };
-  });
   return (
-    <fieldset className="space-y-4">
-      <legend className="text-lg" id={id}>
-        {legend}
-      </legend>
-      <div className="space-y-6">
-        {fields.map((props) => (
-          <Input key={props.id} {...props} />
-        ))}
-      </div>
-    </fieldset>
+    <Fieldset id={id} legend={legend}>
+      <Input label="Name" required {...getProps('name', props)} />
+      <Input
+        label="Email"
+        type="email"
+        required
+        {...getProps<Schema>('email', props)}
+      />
+      <Input label="Host" required {...getProps('host', props)} />
+      <Input label="Port" type="number" required {...getProps('port', props)} />
+      <Input label="Username" required {...getProps('username', props)} />
+      <Input
+        label="Password"
+        type="password"
+        required
+        {...getProps('password', props)}
+      />
+    </Fieldset>
   );
 }

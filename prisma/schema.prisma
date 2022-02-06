@@ -47,7 +47,7 @@ model EmailTemplate {
   createdAt    DateTime        @default(now()) @map("created_at")
   updatedAt    DateTime        @default(now()) @updatedAt @map("updated_at")
   subject      String
-  body         String?
+  body         Json            @default("[]")
   emailColumns String[]        @map("email_columns")
   data         Json            @default("{}")
   userId       String          @map("user_id") @db.Uuid

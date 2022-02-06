@@ -43,11 +43,13 @@ export const action: ActionFunction = async ({ request }) => {
   return result;
 };
 
+type ActionData = EmailTemplate.ActionData;
+
 export default function NewEmailTemplateRoute() {
   const transition = useTransition();
   const { transports } =
     useLoaderData<{ transports: { id: string; name: string }[] }>();
-  const actionData = useActionData<{ errors?: EmailTemplate.Errors }>();
+  const actionData = useActionData<ActionData>();
 
   return (
     <div>
@@ -66,12 +68,10 @@ export default function NewEmailTemplateRoute() {
           legend="New Email Template"
           id="email-template"
           values={{ transportId: transports[0].id }}
-          options={{
-            transportId: transports.map(({ id: value, name: label }) => ({
-              label,
-              value,
-            })),
-          }}
+          transports={transports.map(({ id: value, name: label }) => ({
+            label,
+            value,
+          }))}
           errors={transition.type == 'idle' ? actionData?.errors : undefined}
           disabled={transition.state == 'submitting'}
         />

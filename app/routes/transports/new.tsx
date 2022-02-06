@@ -27,9 +27,11 @@ export const action: ActionFunction = async ({ request }) => {
   return result;
 };
 
+type ActionData = EmailTransport.ActionData;
+
 export default function NewEmailTransportRoute() {
   const transition = useTransition();
-  const actionData = useActionData<{ errors?: EmailTransport.Errors }>();
+  const actionData = useActionData<ActionData>();
 
   return (
     <div>

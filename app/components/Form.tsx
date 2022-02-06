@@ -1,8 +1,8 @@
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/solid';
 import { DocumentDownloadIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
-import { ComponentPropsWithoutRef, useEffect } from 'react';
-import { useCallback, useState } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useId } from '@reach/auto-id';
 import ReactSelect from 'react-select';
 import { Link, LinkProps } from 'remix';
@@ -88,46 +88,31 @@ export function LinkButton({
   );
 }
 
-export type InputProps<Name = string> = {
+export type InputProps<Name = string> = Omit<
+  ComponentPropsWithoutRef<'input'>,
+  'defaultValue'
+> & {
   label: string;
   name: Name;
+  defaultValue?: ComponentPropsWithoutRef<'input'>['defaultValue'] | null;
   description?: string;
   errorMessage?: string;
   filled?: boolean;
-} & ComponentPropsWithoutRef<'input'>;
+};
 
-export type SelectProps<Name = string> = {
+export type SelectProps<Name = string> = Omit<
+  ComponentPropsWithoutRef<'select'>,
+  'defaultValue'
+> & {
   label: string;
   name: Name;
   options: { label: string; value: string }[];
+  defaultValue?: ComponentPropsWithoutRef<'select'>['defaultValue'] | null;
   multiple?: boolean;
   description?: string;
   errorMessage?: string;
   filled?: boolean;
-} & ComponentPropsWithoutRef<'select'>;
-
-export type TextareaProps<Name = string> = {
-  label: string;
-  name: Name;
-  multiline: true;
-  description?: string;
-  errorMessage?: string;
-  filled?: boolean;
-} & ComponentPropsWithoutRef<'textarea'>;
-
-export type FileProps<Name = string> = {
-  label: string;
-  name: Name;
-  description?: string;
-  errorMessage?: string;
-  filled?: boolean;
-} & ComponentPropsWithoutRef<'input'>;
-
-export type FormControlProps<Name = string> =
-  | InputProps<Name>
-  | SelectProps<Name>
-  | TextareaProps<Name>
-  | FileProps<Name>;
+};
 
 export function Input<Name = string>({
   label,
@@ -135,9 +120,10 @@ export function Input<Name = string>({
   errorMessage,
   filled,
   className,
+  defaultValue,
   id: inputId,
   ...props
-}: FormControlProps<Name>) {
+}: InputProps<Name> | SelectProps<Name>) {
   const id = useId(inputId);
 
   if ('options' in props) {
@@ -147,28 +133,13 @@ export function Input<Name = string>({
         label={label}
         description={description}
         errorMessage={errorMessage}
+        defaultValue={defaultValue ?? undefined}
         {...props}
       />
     );
-  }
-
-  if ('multiline' in props) {
-    return <textarea></textarea>;
   }
 
   const { type = 'text' } = props;
-
-  if (type == 'file') {
-    return (
-      <FileInput
-        id={id}
-        label={label}
-        description={description}
-        errorMessage={errorMessage}
-        {...props}
-      />
-    );
-  }
 
   if (type == 'checkbox') {
     return (
@@ -177,6 +148,8 @@ export function Input<Name = string>({
         label={label}
         description={description}
         errorMessage={errorMessage}
+        //defaultChecked={defaultValue == true}
+        value="true"
         {...props}
       />
     );
@@ -223,6 +196,7 @@ export function Input<Name = string>({
             description: !!description,
             required: props.required,
           })}
+          defaultValue={defaultValue ?? undefined}
           {...props}
         />
         {filled || errorMessage ? (
@@ -264,7 +238,7 @@ function CheckboxInput<Name = string>({
   errorMessage,
   description,
   ...props
-}: InputProps<Name>) {
+}: Omit<InputProps<Name>, 'defaultValue'>) {
   return (
     <div className="relative flex items-start">
       <div className="flex items-center h-5">
@@ -316,7 +290,24 @@ function SelectedFile({ file, name }: { file: File; name: string }) {
   );
 }
 
-function FileInput<Name = string>({ id, label, ...props }: FileProps<Name>) {
+export type FileProps<Name = string, Value = never> = Omit<
+  ComponentPropsWithoutRef<'input'>,
+  'defaultValue'
+> & {
+  label: string;
+  name: Name;
+  defaultValue?: Value;
+  description?: string;
+  errorMessage?: string;
+  filled?: boolean;
+};
+
+export function FileInput<Name = string, Value = never>({
+  id,
+  label,
+  defaultValue,
+  ...props
+}: FileProps<Name, Value>) {
   const [files, setFiles] = useState<File[]>();
   const onDrop = useCallback((acceptedFiles) => {
     setFiles(acceptedFiles);
@@ -450,4 +441,23 @@ function describedby({
   if (!required) {
     return `${id}-optional`;
   }
+}
+
+export function Fieldset({
+  id,
+  legend,
+  children,
+}: {
+  id: string;
+  legend: string;
+  children: ReactNode;
+}) {
+  return (
+    <fieldset className="space-y-4">
+      <legend className="text-lg" id={id}>
+        {legend}
+      </legend>
+      <div className="space-y-6">{children}</div>
+    </fieldset>
+  );
 }

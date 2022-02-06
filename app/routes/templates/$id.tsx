@@ -37,11 +37,12 @@ export const action: ActionFunction = async ({ request, params }) => {
 };
 
 type LoaderData = Awaited<ReturnType<typeof EmailTemplate.findById>>;
+type ActionData = EmailTemplate.ActionData;
 
 export default function EditEmailTransportRoute() {
   const transition = useTransition();
   const data = useLoaderData<LoaderData>();
-  const actionData = useActionData<{ errors?: EmailTemplate.UpdateErrors }>();
+  const actionData = useActionData<ActionData>();
 
   return (
     <div>
@@ -60,16 +61,15 @@ export default function EditEmailTransportRoute() {
           legend="Edit Email Template"
           id="email-template"
           values={data}
-          options={{
-            emailColumns: data.fields.map((value) => ({
-              label: value,
-              value,
-            })),
-            transportId: data.transports.map(({ id: value, name: label }) => ({
-              label,
-              value,
-            })),
-          }}
+          fields={data.fields.map((value) => ({
+            label: value,
+            value,
+          }))}
+          transports={data.transports.map(({ id: value, name: label }) => ({
+            label,
+            value,
+          }))}
+          tags={data.fields}
           errors={transition.type == 'idle' ? actionData?.errors : undefined}
           disabled={transition.state == 'submitting'}
         />
@@ -121,7 +121,7 @@ function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
               {message.subject}
             </dd>
           </div>
-          <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+          <div className="py-2 sm:py-3 sm:px-3">
             <p className="text-sm">{message.body}</p>
           </div>
         </dl>

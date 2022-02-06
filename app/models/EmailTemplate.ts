@@ -1,47 +1,57 @@
-import { z, ZodError } from 'zod';
+import { z } from 'zod';
 import Papa from 'papaparse';
 
+import { getErrors, Errors } from '~/util/form';
 import { prisma } from '~/util/db.server';
+import {
+  Document as Body,
+  isList,
+  isTag,
+  Descendant,
+  FormattedText,
+} from './TemplateDocument';
 
-const Schema = z.object({
-  subject: z.string().min(1),
-  transportId: z.string().uuid(),
-  data: z.string(),
-});
-export type Schema = z.infer<typeof Schema>;
-export type Errors = Record<
-  keyof Schema,
-  { message?: string; value?: string } | undefined
->;
+export type ActionData = { errors?: Errors<Schema> };
 
-const UpdateSchema = z.object({
-  subject: z.string().min(1),
-  body: z.string().nullable(),
-  transportId: z.string().uuid().nullable(),
-  emailColumns: z
-    .string()
-    .transform((name) => [name])
-    .or(z.string().array()),
-});
-export type UpdateSchema = z.infer<typeof UpdateSchema>;
-export type UpdateErrors = Record<
-  keyof UpdateSchema,
-  { message?: string; value?: string } | undefined
->;
-
-const TemplateData = z.string().transform((csv) => {
-  const parsedResult = Papa.parse(csv, {
-    dynamicTyping: true,
-    header: true,
-  });
-  return CSV.parse(parsedResult);
-});
+const Row = z.record(z.string(), z.union([z.string(), z.number()]).nullish());
+type Row = z.infer<typeof Row>;
 const CSV = z.object({
-  data: z
-    .record(z.string(), z.union([z.string(), z.number()]).nullish())
-    .array(),
+  data: Row.array(),
   meta: z.object({ delimiter: z.string(), fields: z.string().array() }),
 });
+
+const Schema = z.object({
+  subject: z.string(),
+  transportId: z.string().uuid().nullable(),
+  body: Body,
+  data: CSV,
+  emailColumns: z.string().array(),
+});
+export type Schema = z.infer<typeof Schema>;
+
+const SchemaCreate = z.object({
+  subject: z.string().min(1),
+  transportId: z.string().uuid(),
+  data: z.string().transform((csv) => {
+    const parsedResult = Papa.parse(csv, {
+      dynamicTyping: true,
+      header: true,
+    });
+    return CSV.parse(parsedResult);
+  }),
+});
+
+const SchemaUpdate = z
+  .object({
+    subject: z.string().min(1),
+    body: z.string().transform((json) => Body.parse(JSON.parse(json))),
+    transportId: z.string().uuid().nullable(),
+    emailColumns: z
+      .string()
+      .transform((name) => [name])
+      .or(z.string().array()),
+  })
+  .partial();
 
 export async function findById(id: string, userId: string) {
   const { user, ...template } = await prisma.emailTemplate.findUnique({
@@ -54,25 +64,32 @@ export async function findById(id: string, userId: string) {
       emailColumns: true,
       data: true,
       transportId: true,
-      user: { select: { transports: { select: { id: true, name: true } } } },
+      user: {
+        select: {
+          transports: {
+            orderBy: { createdAt: 'asc' },
+            select: { id: true, name: true },
+          },
+        },
+      },
     },
   });
   const data = CSV.parse(template.data);
+  const body = Body.parse(template.body);
   const fields = data.meta.fields;
-  const messages = data.data.slice(0, 3).map((row) => ({
-    to: row[template.emailColumns[0]],
-    subject: template.subject,
-    body: fields
-      .map((name) => [`{${name}}`, row[name]] as const)
-      .reduce(
-        (body, [pattern, value]) =>
-          value ? body.replace(pattern, String(value)) : body,
-        template.body ?? ''
-      ),
-  }));
+  const messages = data.data
+    .filter((row) => isValidRow(body, row))
+    .slice(0, 3)
+    .map((row) => ({
+      to: template.emailColumns.map((name) => row[name]).join(', '),
+      subject: template.subject,
+      body: renderBody(body, row),
+    }));
 
   return {
     ...template,
+    data,
+    body,
     fields,
     messages,
     transports: user.transports,
@@ -80,13 +97,15 @@ export async function findById(id: string, userId: string) {
 }
 
 export function create(userId: string, form: FormData) {
-  const result = Schema.extend({ data: TemplateData }).safeParse(
-    Object.fromEntries(form)
-  );
+  const result = SchemaCreate.safeParse(Object.fromEntries(form));
 
   if (result.success) {
     return prisma.emailTemplate.create({
-      data: { userId, ...result.data },
+      data: {
+        userId,
+        ...result.data,
+        body: [{ type: 'paragraph', children: [{ text: '' }] }],
+      },
       select: { id: true },
     });
   } else {
@@ -95,7 +114,7 @@ export function create(userId: string, form: FormData) {
 }
 
 export function update(id: string, userId: string, form: FormData) {
-  const result = UpdateSchema.partial().safeParse(Object.fromEntries(form));
+  const result = SchemaUpdate.safeParse(Object.fromEntries(form));
 
   if (result.success) {
     return prisma.emailTemplate.update({
@@ -108,13 +127,41 @@ export function update(id: string, userId: string, form: FormData) {
   }
 }
 
-function getErrors(error: ZodError, formData: FormData): Errors {
-  const errors: Record<string, unknown> = {};
-  const issues = Object.fromEntries(
-    error.issues.map(({ message, path }) => [path[0], message])
+function isValidRow(body: Body, row: Row) {
+  const tags = body.flatMap((element) =>
+    isList(element)
+      ? element.children.flatMap((element) => element.children.filter(isTag))
+      : element.children.filter(isTag)
   );
-  for (const [name, value] of formData) {
-    errors[name] = { value: String(value), message: issues[name] };
+  return tags.length == 0 || tags.every(({ tag }) => !!row[tag]);
+}
+
+function renderBody(body: Body, row: Row): string {
+  return body
+    .map((node) => {
+      if (isList(node)) {
+        return node.children
+          .map((node) =>
+            node.children.map((node) => renderLeaf(node, row)).join('')
+          )
+          .map((text) => `* ${text}`)
+          .join('\n');
+      }
+      return node.children.map((node) => renderLeaf(node, row)).join('');
+    })
+    .join('\n');
+}
+
+function renderText(node: FormattedText) {
+  return node.text;
+}
+
+function renderLeaf(node: Descendant, row: Row): string {
+  if ('text' in node) {
+    return renderText(node);
+  } else if (node.type == 'tag') {
+    return String(row[node.tag]);
   }
-  return errors as Errors;
+  const title = node.children.map((node) => renderLeaf(node, row)).join('');
+  return `[${title}](${node.url})`;
 }

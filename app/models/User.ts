@@ -43,8 +43,14 @@ export function findWithTransportsAndTemplates(userId: string) {
     rejectOnNotFound: true,
     where: { id: userId },
     select: {
-      transports: { select: { id: true, name: true, email: true } },
-      templates: { select: { id: true, subject: true } },
+      transports: {
+        orderBy: { createdAt: 'asc' },
+        select: { id: true, name: true, email: true },
+      },
+      templates: {
+        orderBy: { createdAt: 'asc' },
+        select: { id: true, subject: true },
+      },
     },
   });
 }

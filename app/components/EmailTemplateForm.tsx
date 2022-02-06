@@ -1,117 +1,79 @@
-import type { FormControlProps, SelectProps } from './Form';
-import type * as EmailTemplate from '~/models/EmailTemplate';
-import { Input } from './Form';
-
-const FIELDS: FormControlProps<keyof EmailTemplate.Schema>[] = [
-  { label: 'Subject', name: 'subject', required: true },
-  { label: 'CSV', name: 'data', type: 'file', required: true },
-  { label: 'Email Transport', name: 'transportId', required: true },
-];
+import type { Schema } from '~/models/EmailTemplate';
+import { Input, Fieldset, SelectProps, FileInput } from './Form';
+import { TemplatedEditor } from './TemplatedEditor';
+import { getProps, Values, Errors } from '~/util/form';
 
 export function EmailTemplateFields({
   id,
   legend,
-  values,
-  errors,
-  options,
-  disabled,
+  transports,
+  ...props
 }: {
   id: string;
   legend: string;
-  values?: Partial<EmailTemplate.Schema> | null;
-  errors?: EmailTemplate.Errors;
+  transports: SelectProps['options'];
+  values?: Values<Schema>;
+  errors?: Errors<Schema>;
   disabled?: boolean;
-  options?: Partial<
-    Record<keyof EmailTemplate.Schema, SelectProps['options'] | undefined>
-  >;
 }) {
-  const fields = FIELDS.map(({ name, ...props }) => {
-    const errorMessage = errors && errors[name]?.message;
-    const defaultValue = errorMessage
-      ? (errors && errors[name]?.value) ?? (values && values[name]) ?? undefined
-      : (values && values[name]) ?? undefined;
-    return {
-      disabled,
-      name,
-      id: name,
-      errorMessage,
-      ...(typeof defaultValue == 'boolean'
-        ? { defaultChecked: defaultValue, value: 'true' }
-        : { defaultValue }),
-      ...props,
-      ...(options && options[name] ? { options: options[name] } : undefined),
-    };
-  });
   return (
-    <fieldset className="space-y-4">
-      <legend className="text-lg" id={id}>
-        {legend}
-      </legend>
-      <div className="space-y-6">
-        {fields.map((props) => (
-          <Input key={props.id} {...props} />
-        ))}
-      </div>
-    </fieldset>
+    <Fieldset id={id} legend={legend}>
+      <Input label="Subject" required {...getProps('subject', props)} />
+      <FileInput
+        label="CSV"
+        type="file"
+        required
+        {...getProps('data', props)}
+      />
+      <Input
+        label="Email Transport"
+        required
+        options={transports}
+        {...getProps('transportId', props)}
+      />
+    </Fieldset>
   );
 }
-
-const UPDATE_FIELDS: FormControlProps<keyof EmailTemplate.UpdateSchema>[] = [
-  { label: 'Subject', name: 'subject', required: true },
-  { label: 'Body', name: 'body', required: true },
-  {
-    label: 'Email Column',
-    name: 'emailColumns',
-    required: true,
-    multiple: true,
-  },
-  { label: 'Email Transport', name: 'transportId', required: true },
-];
 
 export function EmailTemplateUpdateFields({
   id,
   legend,
-  values,
-  errors,
-  options,
-  disabled,
+  transports,
+  fields,
+  tags,
+  ...props
 }: {
   id: string;
   legend: string;
-  values?: Partial<EmailTemplate.UpdateSchema> | null;
-  errors?: EmailTemplate.UpdateErrors;
+  transports: SelectProps['options'];
+  fields: SelectProps['options'];
+  tags: string[];
+  values?: Values<Schema>;
+  errors?: Errors<Schema>;
   disabled?: boolean;
-  options?: Partial<
-    Record<keyof EmailTemplate.UpdateSchema, SelectProps['options'] | undefined>
-  >;
 }) {
-  const fields = UPDATE_FIELDS.map(({ name, ...props }) => {
-    const errorMessage = errors && errors[name]?.message;
-    const defaultValue = errorMessage
-      ? (errors && errors[name]?.value) ?? (values && values[name]) ?? undefined
-      : (values && values[name]) ?? undefined;
-    return {
-      disabled,
-      name,
-      id: name,
-      errorMessage,
-      ...(typeof defaultValue == 'boolean'
-        ? { defaultChecked: defaultValue, value: 'true' }
-        : { defaultValue }),
-      ...props,
-      ...(options && options[name] ? { options: options[name] } : undefined),
-    };
-  });
   return (
-    <fieldset className="space-y-4">
-      <legend className="text-lg" id={id}>
-        {legend}
-      </legend>
-      <div className="space-y-6">
-        {fields.map((props) => (
-          <Input key={props.id} {...props} />
-        ))}
-      </div>
-    </fieldset>
+    <Fieldset id={id} legend={legend}>
+      <Input label="Subject" required {...getProps('subject', props)} />
+      <TemplatedEditor
+        label="Body"
+        tags={tags}
+        required
+        {...getProps('body', props)}
+      />
+      <Input
+        label="Email Column"
+        required
+        multiple
+        options={fields}
+        {...getProps('emailColumns', props)}
+      />
+      <Input
+        label="Email Transport"
+        required
+        options={transports}
+        {...getProps('transportId', props)}
+      />
+    </Fieldset>
   );
 }
