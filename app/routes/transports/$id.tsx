@@ -79,7 +79,7 @@ export default function EditEmailTransportRoute() {
         />
 
         <div className="flex items-center justify-between">
-          <Button onClick={() => verify()} className="mr-2" primary>
+          <Button onClick={() => verify()} primary>
             <StateIcon state={state} />
             Verify
           </Button>

@@ -74,24 +74,29 @@ export default function EditEmailTransportRoute() {
           disabled={transition.state == 'submitting'}
         />
 
-        <div className="flex items-center justify-end">
-          <Button
-            type="submit"
-            disabled={transition.state == 'submitting'}
-            primary
-          >
-            <StateIcon
-              state={transition.state == 'submitting' ? 'loading' : 'idle'}
-            />
-            {transition.state == 'submitting' ? 'Saving...' : 'Save'}
+        <div className="flex items-center justify-between">
+          <Button primary disabled>
+            Send
           </Button>
-          <LinkButton to="/" className="ml-2">
-            Cancel
-          </LinkButton>
+          <div className="flex items-center">
+            <Button
+              type="submit"
+              disabled={transition.state == 'submitting'}
+              primary
+            >
+              <StateIcon
+                state={transition.state == 'submitting' ? 'loading' : 'idle'}
+              />
+              {transition.state == 'submitting' ? 'Saving...' : 'Save'}
+            </Button>
+            <LinkButton to="/" className="ml-2">
+              Cancel
+            </LinkButton>
+          </div>
         </div>
       </Form>
 
-      <ul className="mt-6">
+      <ul role="list" className="mt-6">
         {data.messages.map((message) => (
           <EmailPreview key={message.to.join(',')} message={message} />
         ))}
