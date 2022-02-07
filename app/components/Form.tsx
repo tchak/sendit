@@ -1,8 +1,12 @@
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/solid';
 import { DocumentDownloadIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
-import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { useCallback, useState, useEffect } from 'react';
+import type {
+  ComponentPropsWithoutRef,
+  ComponentPropsWithRef,
+  ReactNode,
+} from 'react';
+import { useCallback, useState, useEffect, forwardRef } from 'react';
 import { useId } from '@reach/auto-id';
 import ReactSelect from 'react-select';
 import { Link, LinkProps } from 'remix';
@@ -44,50 +48,48 @@ export function buttonClassName({
   );
 }
 
-export type ButtonProps = ButtonClassNameProps &
-  ComponentPropsWithoutRef<'button'>;
+export type ButtonProps = ComponentPropsWithRef<'button'> &
+  ButtonClassNameProps;
 
-export function Button({
-  children,
-  size,
-  primary,
-  full,
-  className,
-  type = 'button',
-  ...props
-}: ButtonProps) {
-  return (
-    <button
-      type={type}
-      className={buttonClassName({ size, primary, full, className })}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-}
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    { children, size, primary, full, className, type = 'button', ...props },
+    ref
+  ) => {
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={buttonClassName({ size, primary, full, className })}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+);
 
-export type ButtonLinkProps = ButtonClassNameProps & LinkProps;
+export type ButtonLinkProps = LinkProps & ButtonClassNameProps;
 
-export function LinkButton({
-  children,
-  size,
-  primary,
-  full,
-  className,
-  to,
-  ...props
-}: ButtonLinkProps) {
-  return (
-    <Link
-      to={to}
-      className={buttonClassName({ size, primary, full, className })}
-      {...props}
-    >
-      {children}
-    </Link>
-  );
-}
+export const LinkButton = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  ({ children, size, primary, full, className, to, ...props }, ref) => {
+    return (
+      <Link
+        ref={ref}
+        to={to}
+        className={buttonClassName({
+          size,
+          primary,
+          full,
+          className,
+        })}
+        {...props}
+      >
+        {children}
+      </Link>
+    );
+  }
+);
 
 export type InputProps<Name = string> = Omit<
   ComponentPropsWithoutRef<'input'>,
@@ -363,7 +365,7 @@ function Select<Name = string>({
   ...props
 }: SelectProps<Name>) {
   return (
-    <div>
+    <div className="flex-1">
       <div className="flex justify-between">
         <label htmlFor={id} className="block text-sm font-medium text-gray-700">
           {label}

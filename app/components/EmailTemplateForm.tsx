@@ -54,25 +54,27 @@ export function EmailTemplateUpdateFields({
 }) {
   return (
     <Fieldset id={id} legend={legend}>
+      <div className="flex justify-between gap-3">
+        <Input
+          label="Email Column"
+          required
+          multiple
+          options={fields}
+          {...getProps('emailColumns', props)}
+        />
+        <Input
+          label="Email Transport"
+          required
+          options={transports}
+          {...getProps('transportId', props)}
+        />
+      </div>
       <Input label="Subject" required {...getProps('subject', props)} />
       <TemplatedEditor
         label="Body"
         tags={tags}
         required
         {...getProps('body', props)}
-      />
-      <Input
-        label="Email Column"
-        required
-        multiple
-        options={fields}
-        {...getProps('emailColumns', props)}
-      />
-      <Input
-        label="Email Transport"
-        required
-        options={transports}
-        {...getProps('transportId', props)}
       />
     </Fieldset>
   );
