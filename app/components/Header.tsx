@@ -31,7 +31,7 @@ export function Header({
   children?: ReactNode;
 }) {
   return (
-    <div className="mb-4">
+    <div className="mb-4 mt-2">
       <div>
         <nav className="sm:hidden" aria-label="Back">
           <Link
@@ -63,16 +63,17 @@ export function Header({
       </div>
       <div className="mt-2 md:flex md:items-center md:justify-between">
         <div className="flex-1 min-w-0">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+          <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
             {title}
-          </h2>
+          </h1>
         </div>
         <div className="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
           <Link
             to="/account"
             className="font-normal leading-none text-base text-gray-400"
           >
-            <UserCircleIcon className="w-7 h-7" />
+            <span className="sr-only">Account</span>
+            <UserCircleIcon className="w-7 h-7" aria-hidden />
           </Link>
         </div>
       </div>
