@@ -28,6 +28,30 @@ const Portal = ({ children }: { children: ReactNode }) => {
     : null;
 };
 
+function getDefaultValue(value?: Descendant[]): Descendant[] {
+  if (!value || value.length == 0) {
+    return [{ type: 'paragraph', children: [{ text: '' }] }];
+  }
+  return value;
+}
+
+function useEditorValue(
+  initialValue?: Descendant[]
+): [Descendant[], string, (value: Descendant[]) => void] {
+  const [value, setValue] = useState<Descendant[]>(() =>
+    getDefaultValue(initialValue)
+  );
+  const [defaultValue, setDefaultValue] = useState(() => JSON.stringify(value));
+  return [
+    value,
+    defaultValue,
+    (value: Descendant[]) => {
+      setValue(value);
+      setDefaultValue(JSON.stringify(value));
+    },
+  ];
+}
+
 export function TemplatedEditor<Name extends string = string>({
   id,
   label,
@@ -49,10 +73,7 @@ export function TemplatedEditor<Name extends string = string>({
   required?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [value, setValue] = useState<Descendant[]>(initialValue ?? []);
-  const [defaultValue, setDefaultValue] = useState(
-    JSON.stringify(initialValue)
-  );
+  const [value, defaultValue, setValue] = useEditorValue(initialValue);
   const [target, setTarget] = useState<Range | undefined | null>();
   const [index, setIndex] = useState(0);
   const [search, setSearch] = useState('');
@@ -114,7 +135,6 @@ export function TemplatedEditor<Name extends string = string>({
         value={value}
         onChange={(value) => {
           setValue(value);
-          setDefaultValue(JSON.stringify(value));
           const { selection } = editor;
 
           if (selection && Range.isCollapsed(selection)) {
@@ -179,7 +199,7 @@ export function TemplatedEditor<Name extends string = string>({
               autoCorrect="off"
               spellCheck="false"
             />
-            <ul className="mt-1">
+            <ul role="list" className="mt-1">
               {tags.map((tag) => (
                 <li
                   key={tag}

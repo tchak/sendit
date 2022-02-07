@@ -95,11 +95,7 @@ export function create(userId: string, form: FormData) {
 
   if (result.success) {
     return prisma.emailTemplate.create({
-      data: {
-        userId,
-        ...result.data,
-        body: [{ type: 'paragraph', children: [{ text: '' }] }],
-      },
+      data: { userId, ...result.data },
       select: { id: true },
     });
   } else {
