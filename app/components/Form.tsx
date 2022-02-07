@@ -16,6 +16,7 @@ export type ButtonClassNameProps = {
   className?: string;
 };
 
+// secondary text-blue-700 bg-blue-100
 export function buttonClassName({
   isActive = false,
   size = 'md',
@@ -24,14 +25,14 @@ export function buttonClassName({
   className,
 }: ButtonClassNameProps) {
   return clsx(
-    'inline-flex items-center border shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
+    'inline-flex items-center border shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-75',
     primary ? 'border-transparent text-white' : 'border-gray-300 text-gray-700',
     primary
       ? isActive
         ? 'bg-blue-700'
         : 'bg-blue-600 hover:bg-blue-700'
       : isActive
-      ? 'bg-gray-200 hover:bg-gray-50'
+      ? 'bg-gray-200'
       : 'bg-white hover:bg-gray-50',
     {
       'px-2.5 py-1.5 text-xs rounded': size == 'sm',
