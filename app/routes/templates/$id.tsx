@@ -1,5 +1,6 @@
 import type { LoaderFunction, MetaFunction, ActionFunction } from 'remix';
 import { Form, useTransition, useLoaderData, useActionData } from 'remix';
+import { useState } from 'react';
 import { SkipNavContent } from '@reach/skip-nav';
 import { z } from 'zod';
 
@@ -9,6 +10,7 @@ import { Button, LinkButton } from '~/components/Form';
 import { StateIcon } from '~/components/Spinner';
 import { EmailTemplateUpdateFields } from '~/components/EmailTemplateForm';
 import { Header, Breadcrumb } from '~/components/Header';
+import { SendDialog } from '~/components/SendDialog';
 
 export const meta: MetaFunction = () => ({
   title: 'Sendit - Email Template',
@@ -43,6 +45,7 @@ export default function EditEmailTransportRoute() {
   const transition = useTransition();
   const data = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
+  const [open, setOpen] = useState(false);
 
   return (
     <div>
@@ -75,7 +78,7 @@ export default function EditEmailTransportRoute() {
         />
 
         <div className="flex items-center justify-between">
-          <Button primary disabled>
+          <Button primary onClick={() => setOpen(true)}>
             Send
           </Button>
           <div className="flex items-center">
@@ -101,6 +104,7 @@ export default function EditEmailTransportRoute() {
           <EmailPreview key={message.to.join(',')} message={message} />
         ))}
       </ul>
+      <SendDialog open={open} close={() => setOpen(false)} />
     </div>
   );
 }
