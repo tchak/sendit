@@ -9,6 +9,10 @@ export async function verify(smtp: SMTPOptions) {
   return transport.verify().catch(() => false);
 }
 
+class EmailTransportError extends Error {
+  isSMTPError = true;
+}
+
 export async function sendmail({
   smtp,
   email,
@@ -24,10 +28,10 @@ export async function sendmail({
       await transport.sendMail(email);
       return true;
     } else {
-      return false;
+      throw new EmailTransportError('Email Transport verification failed');
     }
   } catch (error) {
-    return error as Error;
+    throw new EmailTransportError((error as Error).message);
   }
 }
 

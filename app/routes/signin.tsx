@@ -1,54 +1,64 @@
-import type { MetaFunction, LoaderFunction } from 'remix';
+import type { MetaFunction, LoaderFunction, ActionFunction } from 'remix';
 import { useTransition, Form, useLoaderData } from 'remix';
 import { SkipNavContent } from '@reach/skip-nav';
 
 import { authenticator } from '~/util/auth.server';
+import { sessionStorage } from '~/util/session.server';
 import { Header } from '~/components/Header';
+import { Input, Button, Fieldset } from '~/components/Form';
 
 export const meta: MetaFunction = () => ({ title: 'Sign In' });
 export const handle = { hydrate: true };
 export const loader: LoaderFunction = async ({ request }) => {
   await authenticator.isAuthenticated(request, { successRedirect: '/' });
-  const actions = [
-    { name: 'GitHub', action: '/auth/github' },
-    { name: 'Twitter', action: '/auth/twitter' },
-  ];
-  if (process.env.NODE_ENV != 'production') {
-    actions.push({ name: 'Dev', action: '/auth/dev' });
-  }
-  return actions;
+  const session = await sessionStorage.getSession(
+    request.headers.get('cookie')
+  );
+  return { magicLinkSent: session.has('auth:magiclink') };
+};
+export const action: ActionFunction = async ({ request }) => {
+  await authenticator.authenticate('email-link', request, {
+    successRedirect: '/signin',
+    failureRedirect: '/signin',
+  });
 };
 
 export default function SignInRoute() {
   const transition = useTransition();
-  const actions = useLoaderData<{ name: string; action: string }[]>();
-  const isConnecting = (action: string) =>
-    transition.type == 'actionSubmission' &&
-    transition.location.pathname == action;
+  const { magicLinkSent } = useLoaderData<{ magicLinkSent: boolean }>();
+  const isSigningIn = transition.type == 'actionSubmission';
+
+  if (magicLinkSent) {
+    return (
+      <div>
+        <Header title="Sign In" />
+        <SkipNavContent />
+        <p>Magic link sent! Check your email.</p>
+      </div>
+    );
+  }
 
   return (
     <div>
-      <Header title="Sign In" />
+      <Header title="Sendit" />
       <SkipNavContent />
-      {actions.map(({ name, action }) => (
-        <Form
-          key={action}
-          action={action}
-          method="post"
-          replace
-          className="mb-2"
-        >
-          <button
-            type="submit"
-            disabled={isConnecting(action)}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            {isConnecting(action)
-              ? `Connecting with ${name}...`
-              : `Continue with ${name}`}
-          </button>
-        </Form>
-      ))}
+      <Form
+        action="/signin"
+        method="post"
+        aria-labelledby="signin"
+        replace
+        noValidate
+        className="space-y-6"
+      >
+        <Fieldset legend="Sign In to your account" id="signin">
+          <Input label="Email" name="email" type="email" required />
+        </Fieldset>
+        <div className="flex items-center justify-between">
+          <Button type="submit" primary disabled={isSigningIn}>
+            {isSigningIn ? `Signing In...` : `Sign In`}
+          </Button>
+        </div>
+      </Form>
     </div>
   );
 }
