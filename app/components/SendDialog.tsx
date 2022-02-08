@@ -1,4 +1,5 @@
-import { Fragment, useRef } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
+import { useNavigate, useFetcher } from 'remix';
 import { Dialog, Transition } from '@headlessui/react';
 import { CheckIcon } from '@heroicons/react/outline';
 
@@ -7,11 +8,14 @@ import { Button } from './Form';
 export function SendDialog({
   open,
   close,
+  templateId,
 }: {
   open: boolean;
   close: () => void;
+  templateId: string;
 }) {
   const cancelButtonRef = useRef(null);
+  const { done, progress, total, send } = useSendMessages(templateId, open);
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -65,30 +69,94 @@ export function SendDialog({
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                      Eius aliquam laudantium explicabo pariatur iste dolorem
-                      animi vitae error totam. At sapiente aliquam accusamus
-                      facere veritatis.
+                      {done ? (
+                        <>{progress} emails sent!</>
+                      ) : (
+                        <>
+                          {progress} / {total}
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-                <Button className="justify-center" primary onClick={close}>
-                  Deactivate
-                </Button>
-                <Button
-                  className="justify-center"
-                  onClick={close}
-                  ref={cancelButtonRef}
-                >
-                  Cancel
-                </Button>
-              </div>
+              {done ? (
+                <div className="mt-5 sm:mt-6">
+                  <Button
+                    className="justify-center w-full"
+                    primary
+                    onClick={close}
+                    ref={cancelButtonRef}
+                  >
+                    Done
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                  <Button className="justify-center" primary onClick={send}>
+                    Send
+                  </Button>
+                  <Button
+                    className="justify-center"
+                    onClick={close}
+                    ref={cancelButtonRef}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
             </div>
           </Transition.Child>
         </div>
       </Dialog>
     </Transition.Root>
   );
+}
+
+function useSendMessages(
+  templateId: string,
+  open: boolean
+): { done: boolean; progress: number; total: number; send: () => void } {
+  const navigate = useNavigate();
+  const fetcher = useFetcher<{ id: string }[]>();
+  const [progress, setIndex] = useState(0);
+  const [messageIds, setMessageIds] = useState<string[]>();
+
+  useEffect(() => {
+    if (open) {
+      fetcher.load(`/templates/${templateId}/messages`);
+    }
+  }, [open]);
+  useEffect(() => {
+    if (fetcher.type == 'done') {
+      setMessageIds(fetcher.data.map(({ id }) => id));
+    }
+  }, [fetcher.type]);
+
+  return {
+    done: messageIds ? progress == messageIds.length : false,
+    progress,
+    total: messageIds?.length ?? 0,
+    send: () => {
+      if (messageIds) {
+        sendMessages(
+          messageIds,
+          () => setIndex((index) => index + 1),
+          () => navigate('.', { replace: true })
+        );
+      }
+    },
+  };
+}
+
+async function sendMessages(
+  messageIds: string[],
+  progress: () => void,
+  done: () => void
+) {
+  for (const messageId of messageIds) {
+    await fetch(`/messages/${messageId}/send`, { method: 'post' });
+    progress();
+  }
+  done();
 }

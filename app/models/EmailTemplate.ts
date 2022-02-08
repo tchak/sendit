@@ -12,6 +12,7 @@ import {
   Descendant,
   FormattedText,
 } from './TemplateDocument';
+import * as EmailMessage from './EmailMessage';
 
 export type ActionData = { errors?: Errors<Schema> };
 
@@ -67,7 +68,17 @@ export async function findById(id: string, userId: string) {
       emailColumns: true,
       data: true,
       transportId: true,
-      messages: { select: { to: true, subject: true, text: true }, take: 3 },
+      messages: {
+        select: {
+          to: true,
+          subject: true,
+          text: true,
+          state: true,
+          lastErrorMessage: true,
+        },
+        orderBy: { createdAt: 'asc' },
+        take: 3,
+      },
       user: {
         select: {
           transports: {
@@ -78,6 +89,7 @@ export async function findById(id: string, userId: string) {
       },
     },
   });
+  const messagesToSend = await EmailMessage.countByTemplateId(id, userId);
   const data = CSV.parse(template.data);
   const body = Body.parse(template.body);
 
@@ -87,6 +99,7 @@ export async function findById(id: string, userId: string) {
     body,
     fields: data.meta.fields,
     transports: user.transports,
+    messagesToSend,
   };
 }
 

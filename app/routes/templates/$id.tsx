@@ -3,6 +3,7 @@ import { Form, useTransition, useLoaderData, useActionData } from 'remix';
 import { useState } from 'react';
 import { SkipNavContent } from '@reach/skip-nav';
 import { z } from 'zod';
+import clsx from 'clsx';
 
 import { authenticator } from '~/util/auth.server';
 import * as EmailTemplate from '~/models/EmailTemplate';
@@ -78,7 +79,11 @@ export default function EditEmailTransportRoute() {
         />
 
         <div className="flex items-center justify-between">
-          <Button primary onClick={() => setOpen(true)}>
+          <Button
+            primary
+            disabled={data.messagesToSend == 0}
+            onClick={() => setOpen(true)}
+          >
             Send
           </Button>
           <div className="flex items-center">
@@ -104,7 +109,11 @@ export default function EditEmailTransportRoute() {
           <EmailPreview key={message.to.join(',')} message={message} />
         ))}
       </ul>
-      <SendDialog open={open} close={() => setOpen(false)} />
+      <SendDialog
+        open={open}
+        close={() => setOpen(false)}
+        templateId={data.id}
+      />
     </div>
   );
 }
@@ -126,6 +135,33 @@ function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
               {message.subject}
             </dd>
           </div>
+          <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+            <dt className="text-sm font-medium text-gray-500">state:</dt>
+            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <span
+                className={clsx(
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  {
+                    'bg-green-100 text-green-800': message.state == 'Sent',
+                    'bg-red-100 text-red-800': message.state == 'Error',
+                    'bg-blue-100 text-blue-800': message.state == 'Pending',
+                  }
+                )}
+              >
+                {message.state}
+              </span>
+            </dd>
+          </div>
+          {message.lastErrorMessage ? (
+            <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+              <dt className="text-sm font-medium text-gray-500">
+                error message:
+              </dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {message.lastErrorMessage}
+              </dd>
+            </div>
+          ) : null}
           <div className="py-2 sm:py-3 sm:px-3">
             <dd className="text-sm">
               <pre>{message.text}</pre>
