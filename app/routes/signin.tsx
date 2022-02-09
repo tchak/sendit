@@ -5,7 +5,7 @@ import { SkipNavContent } from '@reach/skip-nav';
 import { authenticator } from '~/util/auth.server';
 import { sessionStorage } from '~/util/session.server';
 import { Header } from '~/components/Header';
-import { Input, Button, Fieldset } from '~/components/Form';
+import { Input, Button } from '~/components/Form';
 
 export const meta: MetaFunction = () => ({ title: 'Sign In' });
 export const handle = { hydrate: true };
@@ -28,37 +28,43 @@ export default function SignInRoute() {
   const { magicLinkSent } = useLoaderData<{ magicLinkSent: boolean }>();
   const isSigningIn = transition.type == 'actionSubmission';
 
-  if (magicLinkSent) {
-    return (
-      <div>
-        <Header title="Sign In" />
-        <SkipNavContent />
-        <p>Magic link sent! Check your email.</p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <Header title="Sendit" />
-      <SkipNavContent />
-      <Form
-        action="/signin"
-        method="post"
-        aria-labelledby="signin"
-        replace
-        noValidate
-        className="space-y-6"
-      >
-        <Fieldset legend="Sign In to your account" id="signin">
-          <Input label="Email" name="email" type="email" required />
-        </Fieldset>
-        <div className="flex items-center justify-between">
-          <Button type="submit" primary disabled={isSigningIn}>
-            {isSigningIn ? `Signing In...` : `Sign In`}
-          </Button>
+    <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Sign in to your account
+        </h1>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {magicLinkSent ? (
+            <p>Magic link sent! Check your email.</p>
+          ) : (
+            <Form
+              action="/signin"
+              method="post"
+              aria-labelledby="signin"
+              replace
+              noValidate
+              className="space-y-6"
+            >
+              <Input
+                label="Email"
+                name="email"
+                type="email"
+                required
+                disabled={isSigningIn}
+              />
+              <div>
+                <Button type="submit" primary className="w-full justify-center">
+                  {isSigningIn ? 'Signing in...' : 'Sign in'}
+                </Button>
+              </div>
+            </Form>
+          )}
         </div>
-      </Form>
+      </div>
     </div>
   );
 }
