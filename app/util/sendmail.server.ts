@@ -19,17 +19,11 @@ export async function sendmail({
 }: {
   smtp: SMTPOptions;
   email: Email;
-}): Promise<boolean | Error> {
+}): Promise<void> {
   const transport = getTransport(smtp);
 
   try {
-    const ok = await transport.verify();
-    if (ok) {
-      await transport.sendMail(email);
-      return true;
-    } else {
-      throw new EmailTransportError('Email Transport verification failed');
-    }
+    await transport.sendMail(email);
   } catch (error) {
     throw new EmailTransportError((error as Error).message);
   }

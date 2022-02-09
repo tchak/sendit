@@ -12,7 +12,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const session = await sessionStorage.getSession(
     request.headers.get('cookie')
   );
-  return { magicLinkSent: session.has('auth:magiclink') };
+  return {
+    magicLinkSent: session.has('auth:magiclink'),
+    error: session.get('auth:error'),
+  };
 };
 export const action: ActionFunction = async ({ request }) => {
   await authenticator.authenticate('email-link', request, {
@@ -23,7 +26,8 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function SignInRoute() {
   const transition = useTransition();
-  const { magicLinkSent } = useLoaderData<{ magicLinkSent: boolean }>();
+  const { magicLinkSent, error } =
+    useLoaderData<{ magicLinkSent: boolean; error?: string }>();
   const isSigningIn = transition.type == 'actionSubmission';
 
   return (
@@ -53,6 +57,7 @@ export default function SignInRoute() {
                 type="email"
                 required
                 disabled={isSigningIn}
+                errorMessage={error}
               />
               <div>
                 <Button type="submit" primary className="w-full justify-center">

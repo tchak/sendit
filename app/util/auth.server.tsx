@@ -1,6 +1,7 @@
 import { Authenticator } from 'remix-auth';
 import { EmailLinkStrategy, SendEmailOptions } from 'remix-auth-email-link';
 import { renderToString } from 'react-dom/server';
+import { z } from 'zod';
 
 import { sessionStorage } from './session.server';
 import { getEnv } from '.';
@@ -38,8 +39,18 @@ async function sendEmail(options: SendEmailOptions<User.Schema>) {
   });
 }
 
+async function verifyEmailAddress(email: string) {
+  const result = z.string().email().safeParse(email);
+  if (!result.success) {
+    throw new Error(result.error.issues[0].message);
+  }
+}
+
 authenticator.use(
-  new EmailLinkStrategy({ sendEmail, secret }, ({ email }) => {
-    return User.findOrCreateByEmail(email);
-  })
+  new EmailLinkStrategy(
+    { sendEmail, secret, verifyEmailAddress },
+    ({ email }) => {
+      return User.findOrCreateByEmail(email);
+    }
+  )
 );
