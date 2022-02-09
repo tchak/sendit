@@ -1,10 +1,8 @@
 import type { MetaFunction, LoaderFunction, ActionFunction } from 'remix';
 import { useTransition, Form, useLoaderData } from 'remix';
-import { SkipNavContent } from '@reach/skip-nav';
 
 import { authenticator } from '~/util/auth.server';
 import { sessionStorage } from '~/util/session.server';
-import { Header } from '~/components/Header';
 import { Input, Button } from '~/components/Form';
 
 export const meta: MetaFunction = () => ({ title: 'Sign In' });
