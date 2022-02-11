@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client';
+import { fieldEncryptionMiddleware } from 'prisma-field-encryption';
 import chalk from 'chalk';
 
 type PrismaError =
@@ -19,6 +20,7 @@ function getClient() {
       { level: 'warn', emit: 'stdout' },
     ],
   });
+  client.$use(fieldEncryptionMiddleware());
   client.$on('query', (e) => {
     if (e.duration < logThreshold) return;
 

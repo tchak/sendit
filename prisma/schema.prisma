@@ -30,7 +30,7 @@ model EmailTransport {
   host      String
   port      Int
   username  String
-  password  String
+  password  String /// @encrypted
   userId    String          @map("user_id") @db.Uuid
   user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   templates EmailTemplate[]
