@@ -11,7 +11,7 @@ module.exports = {
   rules: {},
   overrides: [
     {
-      files: ['remix.config.js', 'tailwind.config.js'],
+      files: ['remix.config.js', 'tailwind.config.js', 'jest.config.js'],
       env: { node: true },
     },
   ],
