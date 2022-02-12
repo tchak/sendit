@@ -719,10 +719,10 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@prisma/client@3.9.1":
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-3.9.1.tgz#565c8121f1220637bcab4a1d1f106b8c1334406c"
-  integrity sha512-aLwfXKLvL+loQ0IuPPCXkcq8cXBg1IeoHHa5lqQu3dJHdj45wnislA/Ny4UxRQjD5FXqrfAb8sWtF+jhdmjFTg==
+"@prisma/client@3.9.2":
+  version "3.9.2"
+  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-3.9.2.tgz#ad17dcfb702842573fe6ec3b7dc4615eff8d8fc6"
+  integrity sha512-VlEIYVMyfFZHbVBOlunPl47gmP/Z0zzPjPj8I7uKEIaABqrUy50ru3XS0aZd8GFvevVwt7p91xxkUjNjrWhKAQ==
   dependencies:
     "@prisma/engines-version" "3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009"
 
@@ -6390,10 +6390,10 @@ prisma-field-encryption@^1.3.0:
     "@prisma/generator-helper" "^3.6.0"
     object-path "^0.11.8"
 
-prisma@^3.9.1:
-  version "3.9.1"
-  resolved "https://registry.yarnpkg.com/prisma/-/prisma-3.9.1.tgz#7510a8bf06018a5313b9427b1127ce4750b1ce5c"
-  integrity sha512-IGcJAu5LzlFv+i+NNhOEh1J1xVVttsVdRBxmrMN7eIH+7mRN6L89Hz1npUAiz4jOpNlHC7n9QwaOYZGxTqlwQw==
+prisma@^3.9.2:
+  version "3.9.2"
+  resolved "https://registry.yarnpkg.com/prisma/-/prisma-3.9.2.tgz#cc2da4e8db91231dea7465adf9db6e19f11032a9"
+  integrity sha512-i9eK6cexV74OgeWaH3+e6S07kvC9jEZTl6BqtBH398nlCU0tck7mE9dicY6YQd+euvMjjCtY89q4NgmaPnUsSg==
   dependencies:
     "@prisma/engines" "3.9.0-58.bcc2ff906db47790ee902e7bbc76d7ffb1893009"
 
@@ -6545,10 +6545,10 @@ react-dom@^17.0.2:
     object-assign "^4.1.1"
     scheduler "^0.20.2"
 
-react-dropzone@^12.0.1:
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/react-dropzone/-/react-dropzone-12.0.1.tgz#926d8537405845fa058869e70d7829938eca5552"
-  integrity sha512-E//nFCJfb8eDZ0zI9bOZ/v+8DOwK+7IY76Fv8u8ogfqX/d/K+32EWkFQ2+O9kF8XfUAyGtSA4cKvCjW4o78Qgg==
+react-dropzone@^12.0.2:
+  version "12.0.2"
+  resolved "https://registry.yarnpkg.com/react-dropzone/-/react-dropzone-12.0.2.tgz#3c34f71f378bc35bf06e8e5a1ccb415a5b7c9917"
+  integrity sha512-wnU3+QZA9H5XqC+UNdEDs5YuB+XgJh5mQ9Bop4PUtN/2nKTGTpBbfkcsm9OVCYylBHak69Ezjzbhx/0Cb6OfjA==
   dependencies:
     attr-accept "^2.2.2"
     file-selector "^0.4.0"
@@ -6758,10 +6758,10 @@ remark-rehype@^9.0.0:
     mdast-util-to-hast "^11.0.0"
     unified "^10.0.0"
 
-remix-auth-email-link@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/remix-auth-email-link/-/remix-auth-email-link-1.1.0.tgz#0da0a5038f4b50abd0f3f59ac9dbff4e2b402384"
-  integrity sha512-SZFLBA8KN4rt/EHyHPbL8wY887AUnNTzqITuuOZCofUDqGg9rU0/u1iKO69LDl/rrH/OHdzoTrV7ClK/faYakg==
+remix-auth-email-link@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/remix-auth-email-link/-/remix-auth-email-link-1.2.0.tgz#a57d39c83916119a9ef9f304d668a71ccf57eaa5"
+  integrity sha512-yeUIjYosUw5jO624d76m0c9+3R7vfUZ0a018cTaOsaN/+biwfd0/+UKTs2NSPI1tBOnbwItT8Ns0EnQD+zsbyA==
   dependencies:
     crypto-js "^4.1.1"
 
@@ -7072,10 +7072,10 @@ slate-history@^0.66.0:
   dependencies:
     is-plain-object "^5.0.0"
 
-slate-react@^0.72.8:
-  version "0.72.8"
-  resolved "https://registry.yarnpkg.com/slate-react/-/slate-react-0.72.8.tgz#b6b5d88ce8f89ba26965066b628757c60866cb23"
-  integrity sha512-asgRV/msGqfzm6cPxhrRo2Iuj5RhoDvicfkwpVD63b4K4yfPpL7a8sx0zO5WY7gqggBLjrYnNth6mAbdlHPzMg==
+slate-react@^0.72.9:
+  version "0.72.9"
+  resolved "https://registry.yarnpkg.com/slate-react/-/slate-react-0.72.9.tgz#b05dd533bd29dd2d4796b614a8d8e01f214bb714"
+  integrity sha512-FEsqB+D1R/h+w1eCtHH367Krw2X7vju2GjMRL/d0bUiCRXlV50J9I9TJizvi7aaZyqBY8BypCuIiq9nNmsulCA==
   dependencies:
     "@types/is-hotkey" "^0.1.1"
     "@types/lodash" "^4.14.149"
@@ -7337,10 +7337,10 @@ symbol-tree@^3.2.4:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-tailwindcss@^3.0.19:
-  version "3.0.19"
-  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.0.19.tgz#cd789953e6762af2e80c5a3e5d6da3a975ee8215"
-  integrity sha512-rjsdfz/qZya5xQ0OVynEMETgWq1CacmftgMYeXXh6bRM5vxsNwRSbMJsCCIjq/w67om9VP/AFMolOwiE+5VKig==
+tailwindcss@^3.0.22:
+  version "3.0.22"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-3.0.22.tgz#5f1aac83810261300ae5b2f98fd4a2fa2ded2c42"
+  integrity sha512-F8lt74RlNZirnkaSk310+vGQta7c0/hgx7/bqxruM4wS9lp8oqV93lzavajC3VT0Lp4UUtUVIt8ifKcmGzkr0A==
   dependencies:
     arg "^5.0.1"
     chalk "^4.1.2"
@@ -7355,6 +7355,7 @@ tailwindcss@^3.0.19:
     is-glob "^4.0.3"
     normalize-path "^3.0.0"
     object-hash "^2.2.0"
+    postcss "^8.4.6"
     postcss-js "^4.0.0"
     postcss-load-config "^3.1.0"
     postcss-nested "5.0.6"
