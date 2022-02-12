@@ -105,8 +105,8 @@ export default function EditEmailTransportRoute() {
       </Form>
 
       <ul role="list" className="mt-6">
-        {data.messages.map((message) => (
-          <EmailPreview key={message.to.join(',')} message={message} />
+        {data.messages.map((message, index) => (
+          <EmailPreview key={message.to.join(',') + index} message={message} />
         ))}
       </ul>
       <SendDialog
@@ -164,7 +164,7 @@ function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
           ) : null}
           <div className="py-2 sm:py-3 sm:px-3">
             <dd className="text-sm">
-              <pre>{message.text}</pre>
+              <pre className="whitespace-pre-wrap">{message.text}</pre>
             </dd>
           </div>
         </dl>

@@ -77,6 +77,7 @@ export async function findById(id: string, userId: string) {
           lastErrorMessage: true,
         },
         orderBy: { createdAt: 'asc' },
+        where: { to: { isEmpty: false } },
         take: 3,
       },
       user: {
@@ -177,7 +178,9 @@ function getMessages({
       const text = htmlToText(html, { wordwrap: false });
       return {
         from,
-        to: emailColumns.map((name) => row[name]).join(', '),
+        to: emailColumns
+          .filter((name) => row[name])
+          .map((name) => String(row[name] ?? '')),
         subject,
         html,
         text,
@@ -208,7 +211,7 @@ function renderBody(body: Body, row: Row): string {
       }
 
       const block = node.children.map((node) => renderLeaf(node, row)).join('');
-      return `<mj-text>${block}</mj-text>`;
+      return `<mj-text>${block.replace(/\n/g, '<br/>')}</mj-text>`;
     })
     .join('');
 }
