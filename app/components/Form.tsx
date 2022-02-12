@@ -309,6 +309,7 @@ export function FileInput<Name = string, Value = never>({
   id,
   label,
   defaultValue,
+  errorMessage,
   ...props
 }: FileProps<Name, Value>) {
   const [files, setFiles] = useState<File[]>();
@@ -367,7 +368,10 @@ function Select<Name = string>({
   return (
     <div className="flex-1">
       <div className="flex justify-between">
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor={`${id}-input`}
+          className="block text-sm font-medium text-gray-700"
+        >
           {label}
         </label>
         {!props.required ? (
@@ -377,7 +381,9 @@ function Select<Name = string>({
         ) : null}
       </div>
       <ReactSelect
-        inputId={id}
+        id={id}
+        instanceId={`${id}-instance`}
+        inputId={`${id}-input`}
         name={props.name}
         className="mt-1 block w-full text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
         minMenuHeight={100}
