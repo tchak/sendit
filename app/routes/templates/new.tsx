@@ -63,6 +63,7 @@ export default function NewEmailTemplateRoute() {
         noValidate
         className="space-y-6"
         aria-labelledby="email-template"
+        encType="multipart/form-data"
       >
         <EmailTemplateFields
           legend="New Email Template"
