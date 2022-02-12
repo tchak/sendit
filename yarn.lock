@@ -6773,6 +6773,11 @@ remix-auth@^3.2.1:
     remix-utils "^2.2.0"
     uuid "^8.3.2"
 
+remix-params-helper@^0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/remix-params-helper/-/remix-params-helper-0.4.1.tgz#3a2f8a23994edab65947a1b9bbff842b66532e22"
+  integrity sha512-25+8T3P2ttJoBnjQTYCpsKmshKNYDe7mG/M5We4cLdvbPlAu0Wu8H/w0U2xMJ3V8Ca8UJhSZt6Dau4ldNobvqg==
+
 remix-utils@^2.2.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/remix-utils/-/remix-utils-2.3.0.tgz#4979b162b4df06bc2d505eadb7b5ee66bb15fac3"

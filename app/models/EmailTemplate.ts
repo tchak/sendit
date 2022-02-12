@@ -2,6 +2,7 @@ import { z } from 'zod';
 import Papa from 'papaparse';
 import mjml2html from 'mjml';
 import { convert as htmlToText } from 'html-to-text';
+import { getParams } from 'remix-params-helper';
 
 import { getErrors, Errors } from '~/util/form';
 import { prisma } from '~/util/db.server';
@@ -45,17 +46,12 @@ const SchemaCreate = z.object({
   }),
 });
 
-const SchemaUpdate = z
-  .object({
-    subject: z.string().min(1),
-    body: z.string().transform((json) => Body.parse(JSON.parse(json))),
-    transportId: z.string().uuid().nullable(),
-    emailColumns: z
-      .string()
-      .transform((name) => [name])
-      .or(z.string().array()),
-  })
-  .partial();
+const SchemaUpdate = z.object({
+  subject: z.string().min(1),
+  body: z.string(),
+  transportId: z.string().uuid(),
+  emailColumns: z.string().array(),
+});
 
 export async function findById(id: string, userId: string) {
   const { user, ...template } = await prisma.emailTemplate.findUnique({
@@ -118,12 +114,18 @@ export function create(userId: string, form: FormData) {
 }
 
 export async function update(id: string, userId: string, form: FormData) {
-  const result = SchemaUpdate.safeParse(Object.fromEntries(form));
+  const result = getParams(form, SchemaUpdate);
 
   if (result.success) {
     const template = await prisma.emailTemplate.update({
       where: { id_userId: { id, userId } },
-      data: { userId, ...result.data },
+      data: {
+        userId,
+        ...result.data,
+        body: result.data.body
+          ? Body.parse(JSON.parse(result.data.body))
+          : undefined,
+      },
       select: {
         id: true,
         subject: true,
@@ -154,7 +156,14 @@ export async function update(id: string, userId: string, form: FormData) {
 
     return { id: template.id };
   } else {
-    return { errors: getErrors(result.error, form) };
+    return {
+      errors: Object.fromEntries(
+        Object.entries(result.errors).map(([key, message]) => [
+          key,
+          { message },
+        ])
+      ),
+    };
   }
 }
 
