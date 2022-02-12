@@ -126,7 +126,7 @@ function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
           <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
             <dt className="text-sm font-medium text-gray-500">to:</dt>
             <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-              {message.to.join(',')}
+              {message.to.join(', ')}
             </dd>
           </div>
           <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
