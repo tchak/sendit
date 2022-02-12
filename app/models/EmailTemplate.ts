@@ -220,7 +220,12 @@ function renderBody(body: Body, row: Row): string {
       }
 
       const block = node.children.map((node) => renderLeaf(node, row)).join('');
-      return `<mj-text>${block.replace(/\n/g, '<br/>')}</mj-text>`;
+      if (block.length > 0) {
+        return `<mj-text>${block
+          .split(/\n/g)
+          .join(`</mj-text><mj-text>`)}</mj-text>`;
+      }
+      return '';
     })
     .join('');
 }

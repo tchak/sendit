@@ -2,6 +2,7 @@ import type { LoaderFunction, MetaFunction, ActionFunction } from 'remix';
 import { Form, useTransition, useLoaderData, useActionData } from 'remix';
 import { useState } from 'react';
 import { SkipNavContent } from '@reach/skip-nav';
+import { Tooltip } from '@reach/tooltip';
 import { z } from 'zod';
 import clsx from 'clsx';
 
@@ -79,13 +80,19 @@ export default function EditEmailTransportRoute() {
         />
 
         <div className="flex items-center justify-between">
-          <Button
-            primary
-            disabled={data.messagesToSend == 0}
-            onClick={() => setOpen(true)}
+          <Tooltip
+            label={
+              data.messagesToSend == 0 ? 'No emails to send' : 'Send emails'
+            }
           >
-            Send
-          </Button>
+            <Button
+              primary
+              disabled={data.messagesToSend == 0}
+              onClick={() => setOpen(true)}
+            >
+              Send
+            </Button>
+          </Tooltip>
           <div className="flex items-center">
             <Button
               type="submit"

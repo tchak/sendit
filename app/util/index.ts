@@ -59,3 +59,11 @@ export function getEnv(name: string, defaultValue?: string): string {
   }
   return value;
 }
+
+export const awaitTimeout = (delay: number, reason?: string) =>
+  new Promise((resolve, reject) =>
+    setTimeout(
+      () => (reason === undefined ? resolve(true) : reject(reason)),
+      delay
+    )
+  );

@@ -15,7 +15,10 @@ export function SendDialog({
   templateId: string;
 }) {
   const cancelButtonRef = useRef(null);
-  const { done, progress, total, send } = useSendMessages(templateId, open);
+  const { done, sending, progress, total, send } = useSendMessages(
+    templateId,
+    open
+  );
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -91,7 +94,7 @@ export function SendDialog({
                     Done
                   </Button>
                 </div>
-              ) : (
+              ) : !sending ? (
                 <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
                   <Button className="justify-center" primary onClick={send}>
                     Send
@@ -104,7 +107,7 @@ export function SendDialog({
                     Cancel
                   </Button>
                 </div>
-              )}
+              ) : null}
             </div>
           </Transition.Child>
         </div>
@@ -116,11 +119,19 @@ export function SendDialog({
 function useSendMessages(
   templateId: string,
   open: boolean
-): { done: boolean; progress: number; total: number; send: () => void } {
+): {
+  done: boolean;
+  sending: boolean;
+  progress: number;
+  total: number;
+  send: () => void;
+} {
   const navigate = useNavigate();
   const fetcher = useFetcher<{ id: string }[]>();
   const [progress, setIndex] = useState(0);
   const [messageIds, setMessageIds] = useState<string[]>();
+
+  const done = messageIds ? progress == messageIds.length : false;
 
   useEffect(() => {
     if (open) {
@@ -134,7 +145,8 @@ function useSendMessages(
   }, [fetcher.type]);
 
   return {
-    done: messageIds ? progress == messageIds.length : false,
+    done,
+    sending: !done && progress != 0,
     progress,
     total: messageIds?.length ?? 0,
     send: () => {

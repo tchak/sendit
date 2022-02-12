@@ -25,6 +25,10 @@ export const links: LinksFunction = () => {
       rel: 'stylesheet',
       href: 'https://unpkg.com/@reach/skip-nav@0.16.0/styles.css',
     },
+    {
+      rel: 'stylesheet',
+      href: 'https://unpkg.com/@reach/tooltip@0.16.0/styles.css',
+    },
     { rel: 'stylesheet', href: tailwind },
     {
       rel: 'apple-touch-icon',

@@ -45,9 +45,17 @@ export function findAllByTemplateId(templateId: string, userId: string) {
   });
 }
 
-export async function markAsSent(id: string, state: 'Sent' | 'Error') {
+export async function markAsSent(
+  id: string,
+  state: 'Sent' | 'Error',
+  lastErrorMessage?: string
+) {
   await prisma.emailMessage.update({
     where: { id },
-    data: { state, sentAt: new Date() },
+    data: {
+      state,
+      sentAt: new Date(),
+      lastErrorMessage: state == 'Error' ? lastErrorMessage : null,
+    },
   });
 }
