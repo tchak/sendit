@@ -27,7 +27,7 @@ export const links: LinksFunction = () => {
     },
     {
       rel: 'stylesheet',
-      href: 'https://unpkg.com/@reach/tooltip@0.16.0/styles.css',
+      href: 'https://unpkg.com/@reach/tooltip@0.16.2/styles.css',
     },
     {
       rel: 'stylesheet',
