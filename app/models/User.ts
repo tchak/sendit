@@ -3,18 +3,12 @@ import { prisma } from '~/util/db.server';
 export type Schema = { id: string; email: string };
 
 export async function findOrCreateByEmail(email: string): Promise<Schema> {
-  try {
-    return await prisma.user.create({
-      data: { email },
-      select: { id: true, email: true },
-    });
-  } catch (e) {
-    return prisma.user.findUnique({
-      rejectOnNotFound: true,
-      where: { email },
-      select: { id: true, email: true },
-    });
-  }
+  return await prisma.user.upsert({
+    where: { email },
+    create: { email },
+    update: {},
+    select: { id: true, email: true },
+  });
 }
 
 export function findWithTransportsAndTemplates(userId: string) {
