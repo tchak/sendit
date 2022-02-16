@@ -53,6 +53,7 @@ model EmailTemplate {
   transportId  String?         @map("transport_id") @db.Uuid
   transport    EmailTransport? @relation(fields: [transportId], references: [id], onDelete: SetNull)
   messages     EmailMessage[]
+  version      Int             @default(0)
 
   @@unique([id, userId])
   @@index(userId)
@@ -77,10 +78,13 @@ model EmailMessage {
   html             String
   text             String
   lastErrorMessage String?
+  row              Int
+  version          Int
   state            EmailMessageState @default(Pending)
   templateId       String            @map("template_id") @db.Uuid
   template         EmailTemplate     @relation(fields: [templateId], references: [id], onDelete: Cascade)
 
+  @@unique([templateId, version, row])
   @@index(templateId)
   @@map("email_messages")
 }

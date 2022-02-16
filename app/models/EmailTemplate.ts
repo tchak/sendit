@@ -139,6 +139,7 @@ export async function update(id: string, userId: string, form: FormData) {
         data: true,
         emailColumns: true,
         transport: { select: { email: true } },
+        version: true,
       },
     });
     await prisma.emailMessage.deleteMany({
@@ -149,15 +150,24 @@ export async function update(id: string, userId: string, form: FormData) {
         from: template.transport.email,
         subject: template.subject,
         body: Body.parse(template.body),
-        data: CSV.parse(template.data),
+        data: CSV.parse(template.data).data,
         emailColumns: template.emailColumns,
       });
-      await prisma.emailMessage.createMany({
-        data: messages.map((message) => ({
-          ...message,
+      for (const { row, ...message } of messages) {
+        const templateId_version_row = {
           templateId: template.id,
-        })),
-      });
+          version: template.version,
+          row,
+        };
+        await prisma.emailMessage.upsert({
+          where: { templateId_version_row },
+          create: {
+            ...message,
+            ...templateId_version_row,
+          },
+          update: {},
+        });
+      }
     }
 
     return { id: template.id };
@@ -173,6 +183,15 @@ export async function update(id: string, userId: string, form: FormData) {
   }
 }
 
+type Message = {
+  from: string;
+  to: string[];
+  subject: string;
+  html: string;
+  text: string;
+  row: number;
+};
+
 function getMessages({
   subject,
   from,
@@ -183,15 +202,16 @@ function getMessages({
   subject: string;
   from: string;
   emailColumns: string[];
-  data: CSV;
+  data: CSV['data'];
   body: Body;
 }) {
-  return data.data
-    .filter((row) => isValidRow(body, row))
-    .map((row) => {
+  const messages: Message[] = [];
+  for (let index = 0; index < data.length; index++) {
+    const row = data[index];
+    if (isValidRow(body, row)) {
       const html = renderHTML(subject, body, row);
       const text = htmlToText(html, { wordwrap: false });
-      return {
+      messages.push({
         from,
         to: emailColumns
           .filter((name) => row[name])
@@ -199,8 +219,11 @@ function getMessages({
         subject,
         html,
         text,
-      };
-    });
+        row: index,
+      });
+    }
+  }
+  return messages;
 }
 
 function isValidRow(body: Body, row: Row) {
