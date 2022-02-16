@@ -136,7 +136,7 @@ export async function update(id: string, userId: string, form: FormData) {
       },
     });
     await prisma.emailMessage.deleteMany({
-      where: { templateId: template.id },
+      where: { templateId: template.id, state: 'Pending' },
     });
     if (template.transport) {
       const messages = getMessages({
