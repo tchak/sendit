@@ -31,6 +31,7 @@ export function EmailTemplateCard({
         replace: true,
       }
     );
+
   return (
     <li
       className={clsx(
@@ -57,8 +58,11 @@ export function EmailTemplateCard({
               <span className="sr-only">Open options</span>
               <DotsVerticalIcon className="w-5 h-5" aria-hidden="true" />
             </MenuButton>
-            <MenuList className="p-0.5">
-              <MenuItem onSelect={onDelete} className="flex items-center">
+            <MenuList className="p-0.5 shadow-sm rounded-md">
+              <MenuItem
+                onSelect={onDelete}
+                className="flex items-center rounded-md"
+              >
                 <TrashIcon
                   className="w-5 h-5 text-red-500 mr-1"
                   aria-hidden="true"
