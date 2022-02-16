@@ -113,6 +113,12 @@ export function create(userId: string, form: FormData) {
   }
 }
 
+export function destroy(id: string, userId: string) {
+  return prisma.emailTemplate
+    .deleteMany({ where: { id, userId } })
+    .then(() => ({ id }));
+}
+
 export async function update(id: string, userId: string, form: FormData) {
   const result = getParams(form, SchemaUpdate);
 

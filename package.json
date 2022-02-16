@@ -29,6 +29,7 @@
     "@heroicons/react": "^1.0.5",
     "@prisma/client": "3.9.2",
     "@reach/auto-id": "^0.16.0",
+    "@reach/menu-button": "^0.16.2",
     "@reach/skip-nav": "^0.16.0",
     "@reach/tooltip": "^0.16.2",
     "@remix-run/react": "^1.1.3",
