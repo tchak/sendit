@@ -27,7 +27,7 @@ async function sendEmail(options: SendEmailOptions<User.Schema>) {
     email: {
       from,
       to: options.emailAddress,
-      subject: 'Sin in to Sendit',
+      subject: 'Sign in to Sendit',
       html: renderToString(
         <p>
           Hi {options.user?.email || 'there'},<br />
