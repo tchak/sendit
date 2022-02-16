@@ -57,6 +57,12 @@ export function create(userId: string, form: FormData) {
   }
 }
 
+export function destroy(id: string, userId: string) {
+  return prisma.emailTransport
+    .deleteMany({ where: { id, userId } })
+    .then(() => ({ id }));
+}
+
 export function update(id: string, userId: string, form: FormData) {
   const result = Schema.partial().safeParse(Object.fromEntries(form));
 

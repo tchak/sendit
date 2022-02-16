@@ -39,6 +39,11 @@ export const action: ActionFunction = async ({ request, params }) => {
     failureRedirect: '/signin',
   });
 
+  if (request.method.toLowerCase() == 'delete') {
+    await EmailTransport.destroy(transportId, user.id);
+    return null;
+  }
+
   const form = await request.formData();
   const result = await EmailTransport.update(transportId, user.id, form);
 
