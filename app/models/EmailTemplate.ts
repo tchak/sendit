@@ -3,6 +3,7 @@ import Papa from 'papaparse';
 import mjml2html from 'mjml';
 import { convert as htmlToText } from 'html-to-text';
 import { getParams } from 'remix-params-helper';
+import type { EmailMessageState } from '@prisma/client';
 
 import { getErrors, Errors } from '~/util/form';
 import { prisma } from '~/util/db.server';
@@ -13,7 +14,6 @@ import {
   Descendant,
   FormattedText,
 } from './TemplateDocument';
-import * as EmailMessage from './EmailMessage';
 
 export type ActionData = { errors?: Errors<Schema> };
 
@@ -53,7 +53,11 @@ const SchemaUpdate = z.object({
   emailColumns: z.string().array(),
 });
 
-export async function findById(id: string, userId: string) {
+export async function findById(
+  id: string,
+  userId: string,
+  state: EmailMessageState = 'Pending'
+) {
   const { user, ...template } = await prisma.emailTemplate.findUnique({
     rejectOnNotFound: true,
     where: { id_userId: { id, userId } },
@@ -73,7 +77,7 @@ export async function findById(id: string, userId: string) {
           lastErrorMessage: true,
         },
         orderBy: { createdAt: 'asc' },
-        where: { to: { isEmpty: false } },
+        where: { to: { isEmpty: false }, state },
         take: 3,
       },
       user: {
@@ -86,7 +90,15 @@ export async function findById(id: string, userId: string) {
       },
     },
   });
-  const messagesToSend = await EmailMessage.countByTemplateId(id, userId);
+  const states = await prisma.emailMessage.groupBy({
+    by: ['state'],
+    _count: true,
+    where: {
+      templateId: id,
+      to: { isEmpty: false },
+      text: { not: '' },
+    },
+  });
   const data = CSV.parse(template.data);
   const body = Body.parse(template.body);
 
@@ -96,7 +108,12 @@ export async function findById(id: string, userId: string) {
     body,
     fields: data.meta.fields,
     transports: user.transports,
-    messagesToSend,
+    states: Object.fromEntries(
+      states.map(({ state: _state, _count }) => [
+        _state,
+        { count: _count, current: _state == state },
+      ])
+    ) as Record<EmailMessageState, { count: number; current: boolean }>,
   };
 }
 

@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from 'react';
 import { SkipNavContent } from '@reach/skip-nav';
 import { z } from 'zod';
+import { getParamsOrFail } from 'remix-params-helper';
 
 import { authenticator } from '~/util/auth.server';
 import * as EmailTransport from '~/models/EmailTransport';
@@ -27,7 +28,10 @@ export const meta: MetaFunction = () => ({
 });
 export const handle: RouteHandle = { hydrate: true };
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const transportId = z.string().parse(params.id);
+  const { id: transportId } = getParamsOrFail(
+    params,
+    z.object({ id: z.string().uuid() })
+  );
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: '/signin',
   });

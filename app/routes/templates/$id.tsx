@@ -1,10 +1,11 @@
 import type { LoaderFunction, MetaFunction, ActionFunction } from 'remix';
-import { Form, useTransition, useLoaderData, useActionData } from 'remix';
+import { Form, useTransition, useLoaderData, useActionData, Link } from 'remix';
 import { useState } from 'react';
 import { SkipNavContent } from '@reach/skip-nav';
 import { Tooltip } from '@reach/tooltip';
 import { z } from 'zod';
 import clsx from 'clsx';
+import { getParamsOrFail, getSearchParamsOrFail } from 'remix-params-helper';
 
 import { authenticator } from '~/util/auth.server';
 import * as EmailTemplate from '~/models/EmailTemplate';
@@ -19,11 +20,24 @@ export const meta: MetaFunction = () => ({
 });
 export const handle = { hydrate: true };
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const templateId = z.string().parse(params.id);
+  const { id: templateId } = getParamsOrFail(
+    params,
+    z.object({ id: z.string().uuid() })
+  );
+  const { state } = getSearchParamsOrFail(
+    request,
+    z.object({
+      state: z.string().optional(),
+    })
+  );
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: '/signin',
   });
-  return EmailTemplate.findById(templateId, user.id);
+  return EmailTemplate.findById(
+    templateId,
+    user.id,
+    state ? (capitalize(state) as keyof LoaderData['states']) : undefined
+  );
 };
 export const action: ActionFunction = async ({ request, params }) => {
   const templateId = z.string().parse(params.id);
@@ -50,7 +64,7 @@ type ActionData = EmailTemplate.ActionData;
 
 export default function EditEmailTransportRoute() {
   const transition = useTransition();
-  const data = useLoaderData<LoaderData>();
+  const { states, ...data } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
   const [open, setOpen] = useState(false);
 
@@ -87,12 +101,12 @@ export default function EditEmailTransportRoute() {
         <div className="flex items-center justify-between">
           <Tooltip
             label={
-              data.messagesToSend == 0 ? 'No emails to send' : 'Send emails'
+              states.Pending?.count == 0 ? 'No emails to send' : 'Send emails'
             }
           >
             <Button
               primary
-              disabled={data.messagesToSend == 0}
+              disabled={states.Pending?.count == 0}
               onClick={() => setOpen(true)}
             >
               Send
@@ -116,11 +130,16 @@ export default function EditEmailTransportRoute() {
         </div>
       </Form>
 
+      {Object.keys(states).length > 0 ? (
+        <StateTabs states={states} className="mt-6" />
+      ) : null}
+
       <ul role="list" className="mt-6">
         {data.messages.map((message, index) => (
           <EmailPreview key={message.to.join(',') + index} message={message} />
         ))}
       </ul>
+
       <SendDialog
         open={open}
         close={() => setOpen(false)}
@@ -182,5 +201,72 @@ function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
         </dl>
       </div>
     </li>
+  );
+}
+
+function capitalize(string: string): string {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function StateTabs({
+  states,
+  className,
+}: {
+  states: LoaderData['states'];
+  className?: string;
+}) {
+  const current = Object.entries(states).find(([, { current }]) => current);
+  return (
+    <div className={className}>
+      <div className="sm:hidden">
+        <label htmlFor="state" className="sr-only">
+          Select a tab
+        </label>
+        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
+        <select
+          id="state"
+          name="state"
+          className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+          defaultValue={current ? current[0] : 'Pending'}
+        >
+          {Object.keys(states).map((state) => (
+            <option key={state}>{state}</option>
+          ))}
+        </select>
+      </div>
+      <div className="hidden sm:block">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            {Object.entries(states).map(([state, { count, current }]) => (
+              <Link
+                key={state}
+                to={`?state=${state.toLowerCase()}`}
+                className={clsx(
+                  current
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200',
+                  'whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm'
+                )}
+                aria-current={current ? 'page' : undefined}
+              >
+                {state}
+                {count ? (
+                  <span
+                    className={clsx(
+                      current
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'bg-gray-100 text-gray-900',
+                      'hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'
+                    )}
+                  >
+                    {count}
+                  </span>
+                ) : null}
+              </Link>
+            ))}
+          </nav>
+        </div>
+      </div>
+    </div>
   );
 }

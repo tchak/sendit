@@ -22,16 +22,6 @@ export function findById(id: string, userId: string) {
   });
 }
 
-export function countByTemplateId(templateId: string, userId: string) {
-  return prisma.emailMessage.count({
-    where: {
-      template: { id: templateId, userId },
-      state: { not: 'Sent' },
-      text: { not: '' },
-      to: { isEmpty: false },
-    },
-  });
-}
 export function findAllByTemplateId(templateId: string, userId: string) {
   return prisma.emailMessage.findMany({
     where: {

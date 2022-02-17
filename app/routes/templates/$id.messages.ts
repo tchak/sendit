@@ -1,11 +1,15 @@
 import type { LoaderFunction } from 'remix';
 import { z } from 'zod';
+import { getParamsOrFail } from 'remix-params-helper';
 
 import { authenticator } from '~/util/auth.server';
 import * as EmailMessage from '~/models/EmailMessage';
 
 export const loader: LoaderFunction = async ({ request, params }) => {
-  const templateId = z.string().uuid().parse(params.id);
+  const { id: templateId } = getParamsOrFail(
+    params,
+    z.object({ id: z.string().uuid() })
+  );
   const user = await authenticator.isAuthenticated(request, {
     failureRedirect: '/signin',
   });
