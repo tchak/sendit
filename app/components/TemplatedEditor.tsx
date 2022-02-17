@@ -19,6 +19,7 @@ import {
   useFocused,
 } from 'slate-react';
 import clsx from 'clsx';
+import { matchSorter } from 'match-sorter';
 
 import type { Tag, CustomElement } from '~/models/TemplateDocument';
 
@@ -83,28 +84,34 @@ export function TemplatedEditor<Name extends string = string>({
     []
   );
 
-  const chars = tags
-    .filter((c) => c.toLowerCase().startsWith(search.toLowerCase()))
-    .slice(0, 10);
+  const filteredTags = matchSorter(tags, search).slice(0, 10);
 
+  const selectTag = useCallback(
+    (tag: string) => {
+      if (target) {
+        Transforms.select(editor, target);
+      }
+      insertTag(editor, tag);
+      setTarget(null);
+    },
+    [target, editor]
+  );
   const onKeyDown = useCallback(
     (event) => {
       if (target) {
         switch (event.key) {
           case 'ArrowDown':
             event.preventDefault();
-            setIndex(index >= chars.length - 1 ? 0 : index + 1);
+            setIndex(index >= filteredTags.length - 1 ? 0 : index + 1);
             break;
           case 'ArrowUp':
             event.preventDefault();
-            setIndex(index <= 0 ? chars.length - 1 : index - 1);
+            setIndex(index <= 0 ? filteredTags.length - 1 : index - 1);
             break;
           case 'Tab':
           case 'Enter':
             event.preventDefault();
-            Transforms.select(editor, target);
-            insertTag(editor, chars[index]);
-            setTarget(null);
+            selectTag(filteredTags[index]);
             break;
           case 'Escape':
             event.preventDefault();
@@ -117,7 +124,7 @@ export function TemplatedEditor<Name extends string = string>({
   );
 
   useEffect(() => {
-    if (target && chars.length > 0) {
+    if (target && filteredTags.length > 0) {
       const el = ref.current;
       const domRange = ReactEditor.toDOMRange(editor, target);
       const rect = domRange.getBoundingClientRect();
@@ -126,7 +133,7 @@ export function TemplatedEditor<Name extends string = string>({
         el.style.left = `${rect.left + window.pageXOffset}px`;
       }
     }
-  }, [chars.length, editor, index, search, target]);
+  }, [filteredTags.length, editor, index, search, target]);
 
   return (
     <>
@@ -144,7 +151,7 @@ export function TemplatedEditor<Name extends string = string>({
             const beforeRange = before && Editor.range(editor, before, start);
             const beforeText =
               beforeRange && Editor.string(editor, beforeRange);
-            const beforeMatch = beforeText && beforeText.match(/^\{(\w+)$/);
+            const beforeMatch = beforeText && beforeText.match(/^\/(\w+)$/);
             const after = Editor.after(editor, start);
             const afterRange = Editor.range(editor, start, after);
             const afterText = Editor.string(editor, afterRange);
@@ -201,17 +208,23 @@ export function TemplatedEditor<Name extends string = string>({
             />
             <ul role="list" className="mt-1">
               {tags.map((tag) => (
-                <li
-                  key={tag}
-                  className="mr-1 mb-0.5 inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800"
-                >
-                  {tag}
+                <li key={tag} className="inline-flex">
+                  <button
+                    type="button"
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      selectTag(tag);
+                    }}
+                    className="mr-1 mb-0.5 items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800"
+                  >
+                    {tag}
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
         </div>
-        {target && chars.length > 0 && (
+        {target && filteredTags.length > 0 && (
           <Portal>
             <div
               ref={ref}
@@ -221,16 +234,23 @@ export function TemplatedEditor<Name extends string = string>({
                 left: '-9999px',
               }}
             >
-              {chars.map((char, i) => (
-                <div
-                  key={char}
-                  className="rounded-md p-0.5"
-                  style={{
-                    background: i === index ? '#B4D5FF' : 'transparent',
+              {filteredTags.map((tag, i) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    selectTag(tag);
                   }}
+                  className={clsx(
+                    'rounded-md block w-full text-left px-1 py-0.5',
+                    {
+                      'bg-blue-200': i == index,
+                    }
+                  )}
                 >
-                  {char}
-                </div>
+                  {tag}
+                </button>
               ))}
             </div>
           </Portal>
