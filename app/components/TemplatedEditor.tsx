@@ -20,6 +20,7 @@ import {
 } from 'slate-react';
 import clsx from 'clsx';
 import { matchSorter } from 'match-sorter';
+import isHotkey from 'is-hotkey';
 
 import type { Tag, CustomElement } from '~/models/TemplateDocument';
 
@@ -28,6 +29,13 @@ const Portal = ({ children }: { children: ReactNode }) => {
     ? createPortal(children, document.body)
     : null;
 };
+
+const HOTKEYS = {
+  'mod+b': 'bold',
+  'mod+i': 'italic',
+  'mod+u': 'underline',
+  'mod+`': 'code',
+} as const;
 
 function getDefaultValue(value?: Descendant[]): Descendant[] {
   if (!value || value.length == 0) {
@@ -78,6 +86,7 @@ export function TemplatedEditor<Name extends string = string>({
   const [target, setTarget] = useState<Range | undefined | null>();
   const [index, setIndex] = useState(0);
   const [search, setSearch] = useState('');
+  const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const editor = useMemo(
     () => withTags(withReact(withHistory(createEditor()))),
@@ -96,6 +105,7 @@ export function TemplatedEditor<Name extends string = string>({
     },
     [target, editor]
   );
+
   const onKeyDown = useCallback(
     (event) => {
       if (target) {
@@ -117,6 +127,14 @@ export function TemplatedEditor<Name extends string = string>({
             event.preventDefault();
             setTarget(null);
             break;
+        }
+      } else {
+        for (const hotkey of Object.keys(HOTKEYS) as (keyof typeof HOTKEYS)[]) {
+          if (isHotkey(hotkey, event)) {
+            event.preventDefault();
+            const mark = HOTKEYS[hotkey];
+            toggleMark(editor, mark);
+          }
         }
       }
     },
@@ -199,6 +217,7 @@ export function TemplatedEditor<Name extends string = string>({
                 },
                 className
               )}
+              renderLeaf={renderLeaf}
               renderElement={renderElement}
               onKeyDown={onKeyDown}
               placeholder={props.placeholder}
@@ -285,10 +304,53 @@ const insertTag = (editor: Editor, tag: string) => {
   Transforms.move(editor);
 };
 
+type Format = 'bold' | 'italic' | 'underline' | 'code';
+
+const toggleMark = (editor: Editor, format: Format) => {
+  const isActive = isMarkActive(editor, format);
+
+  if (isActive) {
+    Editor.removeMark(editor, format);
+  } else {
+    Editor.addMark(editor, format, true);
+  }
+};
+
+const isMarkActive = (editor: Editor, format: Format) => {
+  const marks = Editor.marks(editor);
+  return marks ? marks[format] === true : false;
+};
+
 type ElementProps = {
   element: CustomElement;
   attributes: PropsWithChildren<'span'>;
   children?: ReactNode;
+};
+
+type LeafProps = {
+  leaf: Record<Format, boolean | undefined>;
+  attributes: PropsWithChildren<'span'>;
+  children?: ReactNode;
+};
+
+const Leaf = ({ attributes, children, leaf }: LeafProps) => {
+  if (leaf.bold) {
+    children = <strong>{children}</strong>;
+  }
+
+  if (leaf.code) {
+    children = <code>{children}</code>;
+  }
+
+  if (leaf.italic) {
+    children = <em>{children}</em>;
+  }
+
+  if (leaf.underline) {
+    children = <u>{children}</u>;
+  }
+
+  return <span {...attributes}>{children}</span>;
 };
 
 const Element = (props: ElementProps) => {
