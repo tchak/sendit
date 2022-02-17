@@ -1,5 +1,12 @@
 import type { LoaderFunction, MetaFunction, ActionFunction } from 'remix';
-import { Form, useTransition, useLoaderData, useActionData, Link } from 'remix';
+import {
+  Form,
+  useTransition,
+  useLoaderData,
+  useActionData,
+  useNavigate,
+  Link,
+} from 'remix';
 import { useState } from 'react';
 import { SkipNavContent } from '@reach/skip-nav';
 import { Tooltip } from '@reach/tooltip';
@@ -215,6 +222,7 @@ function StateTabs({
   states: LoaderData['states'];
   className?: string;
 }) {
+  const navigate = useNavigate();
   const current = Object.entries(states).find(([, { current }]) => current);
   return (
     <div className={className}>
@@ -228,6 +236,9 @@ function StateTabs({
           name="state"
           className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
           defaultValue={current ? current[0] : 'Pending'}
+          onChange={(event) => {
+            navigate(`?state=${event.target.value.toLowerCase()}`);
+          }}
         >
           {Object.keys(states).map((state) => (
             <option key={state}>{state}</option>
