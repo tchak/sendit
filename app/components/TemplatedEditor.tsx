@@ -29,7 +29,14 @@ import {
 import clsx from 'clsx';
 import { matchSorter } from 'match-sorter';
 import { isHotkey } from 'is-hotkey';
-import { LinkIcon } from '@heroicons/react/outline';
+import {
+  FaBold,
+  FaItalic,
+  FaUnderline,
+  FaUndo,
+  FaRedo,
+  FaLink,
+} from 'react-icons/fa';
 
 import type {
   Tag,
@@ -518,60 +525,87 @@ const InlineChromiumBugfix = () => (
 
 function Toolbar() {
   const editor = useSlate();
+  const canUndo = editor.history.undos.length > 1;
+  const canRedo = editor.history.redos.length > 0;
 
   return (
-    <div className="flex items-center mt-1">
-      <Button
-        onMouseDown={(event) => {
-          event.preventDefault();
-          toggleMark(editor, 'bold');
-        }}
-        isActive={isMarkActive(editor, 'bold')}
-        size="sm"
-        className="mr-1"
-      >
-        <b className="w-2">b</b>
-      </Button>
-      <Button
-        onMouseDown={(event) => {
-          event.preventDefault();
-          toggleMark(editor, 'italic');
-        }}
-        isActive={isMarkActive(editor, 'italic')}
-        size="sm"
-        className="mr-1"
-      >
-        <i className="w-2">i</i>
-      </Button>
-      <Button
-        onMouseDown={(event) => {
-          event.preventDefault();
-          toggleMark(editor, 'underline');
-        }}
-        isActive={isMarkActive(editor, 'underline')}
-        size="sm"
-        className="mr-3"
-      >
-        <span className="underline w-2">u</span>
-      </Button>
-
-      <Button
-        onMouseDown={(event) => {
-          event.preventDefault();
-          if (isLinkActive(editor)) {
-            unwrapLink(editor);
-          } else {
-            const url = window.prompt('Enter the URL of the link:');
-            if (url) {
-              insertLink(editor, url);
+    <div className="flex items-center mt-1 justify-between">
+      <div className="flex items-center">
+        <Button
+          onMouseDown={(event) => {
+            event.preventDefault();
+            toggleMark(editor, 'bold');
+          }}
+          isActive={isMarkActive(editor, 'bold')}
+          size="sm"
+          className="mr-1"
+        >
+          <FaBold />
+        </Button>
+        <Button
+          onMouseDown={(event) => {
+            event.preventDefault();
+            toggleMark(editor, 'italic');
+          }}
+          isActive={isMarkActive(editor, 'italic')}
+          size="sm"
+          className="mr-1"
+        >
+          <FaItalic />
+        </Button>
+        <Button
+          onMouseDown={(event) => {
+            event.preventDefault();
+            toggleMark(editor, 'underline');
+          }}
+          isActive={isMarkActive(editor, 'underline')}
+          size="sm"
+          className="mr-3"
+        >
+          <FaUnderline />
+        </Button>
+        <Button
+          onMouseDown={(event) => {
+            event.preventDefault();
+            if (isLinkActive(editor)) {
+              unwrapLink(editor);
+            } else {
+              const url = window.prompt('Enter the URL of the link:');
+              if (url) {
+                insertLink(editor, url);
+              }
             }
-          }
-        }}
-        isActive={isLinkActive(editor)}
-        size="sm"
-      >
-        <LinkIcon className="w-3 h-3 m-0.5" />
-      </Button>
+          }}
+          isActive={isLinkActive(editor)}
+          size="sm"
+        >
+          <FaLink />
+        </Button>
+      </div>
+
+      <div className="flex items-center">
+        <Button
+          onMouseDown={(event) => {
+            event.preventDefault();
+            editor.undo();
+          }}
+          size="sm"
+          className="mr-1"
+          disabled={!canUndo}
+        >
+          <FaUndo />
+        </Button>
+        <Button
+          onMouseDown={(event) => {
+            event.preventDefault();
+            editor.redo();
+          }}
+          size="sm"
+          disabled={!canRedo}
+        >
+          <FaRedo />
+        </Button>
+      </div>
     </div>
   );
 }
