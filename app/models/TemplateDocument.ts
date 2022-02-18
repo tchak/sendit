@@ -76,13 +76,13 @@ export type CustomElement =
 export function isList(node: Block): node is NumberedList | BulletedList {
   return node.type == 'numbered-list' || node.type == 'bulleted-list';
 }
-export function isTag(node: Descendant): node is Tag {
+export function isTag(node: { type?: string }): node is Tag {
   return 'type' in node && node.type == 'tag';
 }
-export function isLink(node: Descendant): node is Link {
+export function isLink(node: { type?: string }): node is Link {
   return 'type' in node && node.type == 'link';
 }
-export function isText(node: Descendant): node is FormattedText {
+export function isText(node: { text?: string }): node is FormattedText {
   return 'text' in node;
 }
 

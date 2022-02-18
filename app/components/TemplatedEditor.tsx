@@ -8,7 +8,14 @@ import {
   PropsWithChildren,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { Editor, Transforms, Range, createEditor, Descendant } from 'slate';
+import {
+  Editor,
+  Transforms,
+  Range,
+  createEditor,
+  Descendant,
+  Element as SlateElement,
+} from 'slate';
 import { withHistory } from 'slate-history';
 import {
   Slate,
@@ -22,7 +29,13 @@ import clsx from 'clsx';
 import { matchSorter } from 'match-sorter';
 import isHotkey from 'is-hotkey';
 
-import type { Tag, CustomElement } from '~/models/TemplateDocument';
+import type {
+  Tag,
+  Link,
+  FormattedText,
+  CustomElement,
+} from '~/models/TemplateDocument';
+import { isLink, isTag } from '~/models/TemplateDocument';
 
 const Portal = ({ children }: { children: ReactNode }) => {
   return typeof document === 'object'
@@ -89,7 +102,7 @@ export function TemplatedEditor<Name extends string = string>({
   const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
   const renderElement = useCallback((props) => <Element {...props} />, []);
   const editor = useMemo(
-    () => withTags(withReact(withHistory(createEditor()))),
+    () => withInline(withReact(withHistory(createEditor()))),
     []
   );
 
@@ -280,15 +293,29 @@ export function TemplatedEditor<Name extends string = string>({
   );
 }
 
-const withTags = (editor: Editor) => {
-  const { isInline, isVoid } = editor;
+const expression = /^https?:\/\//;
+const regex = new RegExp(expression);
+const isUrl = (text: string) => regex.test(text);
+
+const withInline = (editor: Editor) => {
+  const { isInline, isVoid, insertData, insertText } = editor;
 
   editor.isInline = (element) => {
-    return element.type === 'tag' ? true : isInline(element);
+    return isTag(element) || isLink(element) ? true : isInline(element);
   };
 
   editor.isVoid = (element) => {
-    return element.type === 'tag' ? true : isVoid(element);
+    return isTag(element) ? true : isVoid(element);
+  };
+
+  editor.insertData = (data) => {
+    const text = data.getData('text/plain');
+
+    if (text && isUrl(text)) {
+      wrapLink(editor, text);
+    } else {
+      insertData(data);
+    }
   };
 
   return editor;
@@ -304,9 +331,38 @@ const insertTag = (editor: Editor, tag: string) => {
   Transforms.move(editor);
 };
 
-type Format = 'bold' | 'italic' | 'underline' | 'code';
+const unwrapLink = (editor: Editor) => {
+  Transforms.unwrapNodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link',
+  });
+};
 
-const toggleMark = (editor: Editor, format: Format) => {
+const wrapLink = (editor: Editor, url: string) => {
+  if (isLinkActive(editor)) {
+    unwrapLink(editor);
+  }
+
+  const { selection } = editor;
+  const isCollapsed = selection && Range.isCollapsed(selection);
+  const link: Link = {
+    type: 'link',
+    url,
+    children: isCollapsed ? [{ text: url }] : [],
+  };
+
+  if (isCollapsed) {
+    Transforms.insertNodes(editor, link);
+  } else {
+    Transforms.wrapNodes(editor, link, { split: true });
+    Transforms.collapse(editor, { edge: 'end' });
+  }
+};
+
+const toggleMark = (
+  editor: Editor,
+  format: keyof Omit<FormattedText, 'text'>
+) => {
   const isActive = isMarkActive(editor, format);
 
   if (isActive) {
@@ -316,7 +372,18 @@ const toggleMark = (editor: Editor, format: Format) => {
   }
 };
 
-const isMarkActive = (editor: Editor, format: Format) => {
+const isLinkActive = (editor: Editor) => {
+  const [link] = Editor.nodes(editor, {
+    match: (n) =>
+      !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link',
+  });
+  return !!link;
+};
+
+const isMarkActive = (
+  editor: Editor,
+  format: keyof Omit<FormattedText, 'text'>
+) => {
   const marks = Editor.marks(editor);
   return marks ? marks[format] === true : false;
 };
@@ -328,7 +395,7 @@ type ElementProps = {
 };
 
 type LeafProps = {
-  leaf: Record<Format, boolean | undefined>;
+  leaf: FormattedText;
   attributes: PropsWithChildren<'span'>;
   children?: ReactNode;
 };
@@ -358,6 +425,8 @@ const Element = (props: ElementProps) => {
   switch (element.type) {
     case 'tag':
       return <TagElement {...props} element={element} />;
+    case 'link':
+      return <LinkElement {...props} element={element} />;
     default:
       return <p {...attributes}>{children}</p>;
   }
@@ -384,3 +453,33 @@ const TagElement = ({
     </span>
   );
 };
+
+const LinkElement = ({
+  attributes,
+  children,
+  element,
+}: ElementProps & { element: Link }) => {
+  const selected = useSelected();
+  return (
+    <a
+      {...attributes}
+      href={element.url}
+      className={clsx(
+        'text-blue-300 underline cursor-pointer',
+        selected ? 'shadow-sm' : ''
+      )}
+    >
+      <InlineChromiumBugfix />
+      {children}
+      <InlineChromiumBugfix />
+    </a>
+  );
+};
+
+// Put this at the start and end of an inline component to work around this Chromium bug:
+// https://bugs.chromium.org/p/chromium/issues/detail?id=1249405
+const InlineChromiumBugfix = () => (
+  <span contentEditable={false} style={{ fontSize: 0 }}>
+    ${String.fromCodePoint(160) /* Non-breaking space */}
+  </span>
+);
