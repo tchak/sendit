@@ -109,12 +109,11 @@ export async function findById(
     body,
     fields: data.meta.fields,
     transports: user.transports,
-    states: Object.fromEntries(
-      states.map(({ state: _state, _count }) => [
-        _state,
-        { count: _count, current: _state == state },
-      ])
-    ) as Record<EmailMessageState, { count: number; current: boolean }>,
+    states: states.map(({ _count, ...data }) => ({
+      ...data,
+      count: _count,
+      current: data.state == state,
+    })),
   };
 }
 

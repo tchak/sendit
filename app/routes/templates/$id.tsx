@@ -9,7 +9,6 @@ import {
 } from 'remix';
 import { useState } from 'react';
 import { SkipNavContent } from '@reach/skip-nav';
-import { Tooltip } from '@reach/tooltip';
 import { z } from 'zod';
 import clsx from 'clsx';
 import { getParamsOrFail, getSearchParamsOrFail } from 'remix-params-helper';
@@ -43,7 +42,7 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return EmailTemplate.findById(
     templateId,
     user.id,
-    state ? (capitalize(state) as keyof LoaderData['states']) : undefined
+    state ? (capitalize(state) as LoaderData['states'][0]['state']) : undefined
   );
 };
 export const action: ActionFunction = async ({ request, params }) => {
@@ -74,6 +73,7 @@ export default function EditEmailTransportRoute() {
   const { states, ...data } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
   const [open, setOpen] = useState(false);
+  const hasPending = states.map(({ state }) => state).includes('Pending');
 
   return (
     <div>
@@ -106,17 +106,14 @@ export default function EditEmailTransportRoute() {
         />
 
         <div className="flex items-center justify-between">
-          <Tooltip
-            label={!states.Pending ? 'No emails to send' : 'Send emails'}
+          <Button
+            primary
+            disabled={!hasPending}
+            onClick={() => setOpen(true)}
+            label={hasPending ? 'Send emails' : 'No emails to send'}
           >
-            <Button
-              primary
-              disabled={!states.Pending}
-              onClick={() => setOpen(true)}
-            >
-              Send
-            </Button>
-          </Tooltip>
+            Send
+          </Button>
           <div className="flex items-center">
             <Button
               type="submit"
@@ -135,7 +132,7 @@ export default function EditEmailTransportRoute() {
         </div>
       </Form>
 
-      {Object.keys(states).length > 0 ? (
+      {states.length > 0 ? (
         <StateTabs states={states} className="mt-6" />
       ) : null}
 
@@ -221,23 +218,23 @@ function StateTabs({
   className?: string;
 }) {
   const navigate = useNavigate();
-  const current = Object.entries(states).find(([, { current }]) => current);
+  const current = states.find(({ current }) => current) ?? states[0];
   return (
     <div className={className}>
       <div className="sm:hidden">
         <label htmlFor="state" className="sr-only">
-          Select a tab
+          Select message state
         </label>
         <select
           id="state"
           name="state"
           className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-          defaultValue={current ? current[0] : 'Pending'}
+          defaultValue={current?.state ?? 'Pending'}
           onChange={(event) => {
             navigate(`?state=${event.target.value.toLowerCase()}`);
           }}
         >
-          {Object.keys(states).map((state) => (
+          {states.map(({ state }) => (
             <option key={state}>{state}</option>
           ))}
         </select>
@@ -245,7 +242,7 @@ function StateTabs({
       <div className="hidden sm:block">
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-            {Object.entries(states).map(([state, { count, current }]) => (
+            {states.map(({ state, count, current }) => (
               <Link
                 key={state}
                 to={`?state=${state.toLowerCase()}`}
