@@ -11,19 +11,22 @@ import { sendmail } from './sendmail.server';
 export const authenticator = new Authenticator<User.Schema>(sessionStorage);
 
 const secret = getEnv('AUTH_SECRET');
-const smtp = {
-  host: getEnv('SMTP_HOST'),
-  port: parseInt(getEnv('SMTP_PORT')),
-  auth: {
-    user: getEnv('SMTP_USERNAME'),
-    pass: getEnv('SMTP_PASSWORD'),
+const transport = {
+  type: getEnv('TRANSPORT_TYPE', 'smtp') as 'smtp' | 'json',
+  options: {
+    host: getEnv('SMTP_HOST'),
+    port: parseInt(getEnv('SMTP_PORT')),
+    auth: {
+      user: getEnv('SMTP_USERNAME'),
+      pass: getEnv('SMTP_PASSWORD'),
+    },
   },
 };
 const from = getEnv('SMTP_EMAIL');
 
 async function sendEmail(options: SendEmailOptions<User.Schema>) {
   await sendmail({
-    smtp,
+    transport,
     email: {
       from,
       to: options.emailAddress,

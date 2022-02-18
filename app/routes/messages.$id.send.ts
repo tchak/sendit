@@ -23,10 +23,13 @@ export const action: ActionFunction = async ({ request, params }) => {
   if (transport) {
     try {
       await sendmail({
-        smtp: {
-          host: transport.host,
-          port: transport.port,
-          auth: { user: transport.username, pass: transport.password },
+        transport: {
+          type: 'smtp',
+          options: {
+            host: transport.host,
+            port: transport.port,
+            auth: { user: transport.username, pass: transport.password },
+          },
         },
         email: message,
       });

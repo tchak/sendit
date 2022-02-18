@@ -25,7 +25,7 @@
     "scalingo-postbuild": "run-s lint build migrate:deploy remix:setup"
   },
   "dependencies": {
-    "@headlessui/react": "^1.4.3",
+    "@headlessui/react": "^1.5.0",
     "@heroicons/react": "^1.0.5",
     "@prisma/client": "3.9.2",
     "@reach/auto-id": "^0.16.0",
@@ -54,7 +54,7 @@
     "remix": "^1.2.1",
     "remix-auth": "^3.2.1",
     "remix-auth-email-link": "^1.2.0",
-    "remix-params-helper": "^0.4.2",
+    "remix-params-helper": "^0.4.3",
     "remix-utils": "^2.5.0",
     "slate": "^0.72.8",
     "slate-history": "^0.66.0",
