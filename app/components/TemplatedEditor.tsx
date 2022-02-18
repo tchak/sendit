@@ -27,7 +27,7 @@ import {
 } from 'slate-react';
 import clsx from 'clsx';
 import { matchSorter } from 'match-sorter';
-import isHotkey from 'is-hotkey';
+import { isHotkey, isKeyHotkey } from 'is-hotkey';
 
 import type {
   Tag,
@@ -48,6 +48,7 @@ const HOTKEYS = {
   'mod+i': 'italic',
   'mod+u': 'underline',
   'mod+`': 'code',
+  'mod+n': 'unformat',
 } as const;
 
 function getDefaultValue(value?: Descendant[]): Descendant[] {
@@ -146,7 +147,33 @@ export function TemplatedEditor<Name extends string = string>({
           if (isHotkey(hotkey, event)) {
             event.preventDefault();
             const mark = HOTKEYS[hotkey];
-            toggleMark(editor, mark);
+            if (mark == 'unformat') {
+              removeMark(editor);
+            } else {
+              toggleMark(editor, mark);
+            }
+          }
+        }
+
+        const { selection } = editor;
+
+        // Default left/right behavior is unit:'character'.
+        // This fails to distinguish between two cursor positions, such as
+        // <inline>foo<cursor/></inline> vs <inline>foo</inline><cursor/>.
+        // Here we modify the behavior to unit:'offset'.
+        // This lets the user step into and out of the inline without stepping over characters.
+        // You may wish to customize this further to only use unit:'offset' in specific cases.
+        if (selection && Range.isCollapsed(selection)) {
+          const { nativeEvent } = event;
+          if (isKeyHotkey('left', nativeEvent)) {
+            event.preventDefault();
+            Transforms.move(editor, { unit: 'offset', reverse: true });
+            return;
+          }
+          if (isKeyHotkey('right', nativeEvent)) {
+            event.preventDefault();
+            Transforms.move(editor, { unit: 'offset' });
+            return;
           }
         }
       }
@@ -221,7 +248,7 @@ export function TemplatedEditor<Name extends string = string>({
           >
             <Editable
               className={clsx(
-                'sm:text-sm rounded-md block w-full border p-2',
+                'sm:text-sm rounded-md block w-full border p-2 h-36',
                 {
                   'pr-10 border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500':
                     errorMessage,
@@ -298,7 +325,7 @@ const regex = new RegExp(expression);
 const isUrl = (text: string) => regex.test(text);
 
 const withInline = (editor: Editor) => {
-  const { isInline, isVoid, insertData, insertText } = editor;
+  const { isInline, isVoid, insertData } = editor;
 
   editor.isInline = (element) => {
     return isTag(element) || isLink(element) ? true : isInline(element);
@@ -356,6 +383,21 @@ const wrapLink = (editor: Editor, url: string) => {
   } else {
     Transforms.wrapNodes(editor, link, { split: true });
     Transforms.collapse(editor, { edge: 'end' });
+  }
+};
+
+const removeMark = (editor: Editor) => {
+  if (isMarkActive(editor, 'bold')) {
+    Editor.removeMark(editor, 'bold');
+  }
+  if (isMarkActive(editor, 'italic')) {
+    Editor.removeMark(editor, 'italic');
+  }
+  if (isMarkActive(editor, 'code')) {
+    Editor.removeMark(editor, 'code');
+  }
+  if (isMarkActive(editor, 'underline')) {
+    Editor.removeMark(editor, 'underline');
   }
 };
 
@@ -417,7 +459,14 @@ const Leaf = ({ attributes, children, leaf }: LeafProps) => {
     children = <u>{children}</u>;
   }
 
-  return <span {...attributes}>{children}</span>;
+  return (
+    <span
+      style={leaf.text == '' ? { paddingLeft: '0.1px' } : undefined}
+      {...attributes}
+    >
+      {children}
+    </span>
+  );
 };
 
 const Element = (props: ElementProps) => {
