@@ -107,13 +107,11 @@ export default function EditEmailTransportRoute() {
 
         <div className="flex items-center justify-between">
           <Tooltip
-            label={
-              states.Pending?.count == 0 ? 'No emails to send' : 'Send emails'
-            }
+            label={!states.Pending ? 'No emails to send' : 'Send emails'}
           >
             <Button
               primary
-              disabled={states.Pending?.count == 0}
+              disabled={!states.Pending}
               onClick={() => setOpen(true)}
             >
               Send
@@ -230,7 +228,6 @@ function StateTabs({
         <label htmlFor="state" className="sr-only">
           Select a tab
         </label>
-        {/* Use an "onChange" listener to redirect the user to the selected tab URL. */}
         <select
           id="state"
           name="state"

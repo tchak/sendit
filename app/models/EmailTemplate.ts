@@ -77,7 +77,7 @@ export async function findById(
           lastErrorMessage: true,
         },
         orderBy: { createdAt: 'asc' },
-        where: { to: { isEmpty: false }, state },
+        where: { to: { isEmpty: false }, text: { not: '' }, state },
         take: 3,
       },
       user: {
