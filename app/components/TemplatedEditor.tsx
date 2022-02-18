@@ -24,10 +24,12 @@ import {
   withReact,
   useSelected,
   useFocused,
+  useSlate,
 } from 'slate-react';
 import clsx from 'clsx';
 import { matchSorter } from 'match-sorter';
-import { isHotkey, isKeyHotkey } from 'is-hotkey';
+import { isHotkey } from 'is-hotkey';
+import { LinkIcon } from '@heroicons/react/outline';
 
 import type {
   Tag,
@@ -36,20 +38,13 @@ import type {
   CustomElement,
 } from '~/models/TemplateDocument';
 import { isLink, isTag } from '~/models/TemplateDocument';
+import { Button } from '~/components/Form';
 
 const Portal = ({ children }: { children: ReactNode }) => {
   return typeof document === 'object'
     ? createPortal(children, document.body)
     : null;
 };
-
-const HOTKEYS = {
-  'mod+b': 'bold',
-  'mod+i': 'italic',
-  'mod+u': 'underline',
-  'mod+`': 'code',
-  'mod+n': 'unformat',
-} as const;
 
 function getDefaultValue(value?: Descendant[]): Descendant[] {
   if (!value || value.length == 0) {
@@ -143,38 +138,16 @@ export function TemplatedEditor<Name extends string = string>({
             break;
         }
       } else {
-        for (const hotkey of Object.keys(HOTKEYS) as (keyof typeof HOTKEYS)[]) {
-          if (isHotkey(hotkey, event)) {
-            event.preventDefault();
-            const mark = HOTKEYS[hotkey];
-            if (mark == 'unformat') {
-              removeMark(editor);
-            } else {
-              toggleMark(editor, mark);
-            }
-          }
-        }
-
-        const { selection } = editor;
-
-        // Default left/right behavior is unit:'character'.
-        // This fails to distinguish between two cursor positions, such as
-        // <inline>foo<cursor/></inline> vs <inline>foo</inline><cursor/>.
-        // Here we modify the behavior to unit:'offset'.
-        // This lets the user step into and out of the inline without stepping over characters.
-        // You may wish to customize this further to only use unit:'offset' in specific cases.
-        if (selection && Range.isCollapsed(selection)) {
-          const { nativeEvent } = event;
-          if (isKeyHotkey('left', nativeEvent)) {
-            event.preventDefault();
-            Transforms.move(editor, { unit: 'offset', reverse: true });
-            return;
-          }
-          if (isKeyHotkey('right', nativeEvent)) {
-            event.preventDefault();
-            Transforms.move(editor, { unit: 'offset' });
-            return;
-          }
+        if (isHotkey('mod+b', event)) {
+          toggleMark(editor, 'bold');
+        } else if (isHotkey('mod+i', event)) {
+          toggleMark(editor, 'italic');
+        } else if (isHotkey('mod+u', event)) {
+          toggleMark(editor, 'underline');
+        } else if (isHotkey('mod+`', event)) {
+          toggleMark(editor, 'code');
+        } else if (isHotkey('mod+n', event)) {
+          removeMark(editor);
         }
       }
     },
@@ -240,6 +213,8 @@ export function TemplatedEditor<Name extends string = string>({
               </span>
             ) : null}
           </div>
+
+          <Toolbar />
 
           <div
             className={clsx('mt-1', {
@@ -356,6 +331,12 @@ const insertTag = (editor: Editor, tag: string) => {
   };
   Transforms.insertNodes(editor, node);
   Transforms.move(editor);
+};
+
+const insertLink = (editor: Editor, url: string) => {
+  if (editor.selection) {
+    wrapLink(editor, url);
+  }
 };
 
 const unwrapLink = (editor: Editor) => {
@@ -513,10 +494,7 @@ const LinkElement = ({
     <a
       {...attributes}
       href={element.url}
-      className={clsx(
-        'text-blue-300 underline cursor-pointer',
-        selected ? 'shadow-sm' : ''
-      )}
+      className={clsx('text-blue-300 underline', selected ? 'shadow-sm' : '')}
     >
       <InlineChromiumBugfix />
       {children}
@@ -532,3 +510,63 @@ const InlineChromiumBugfix = () => (
     ${String.fromCodePoint(160) /* Non-breaking space */}
   </span>
 );
+
+function Toolbar() {
+  const editor = useSlate();
+
+  return (
+    <div className="flex items-center mt-1">
+      <Button
+        onMouseDown={(event) => {
+          event.preventDefault();
+          toggleMark(editor, 'bold');
+        }}
+        isActive={isMarkActive(editor, 'bold')}
+        size="sm"
+        className="mr-1"
+      >
+        <b className="w-2">b</b>
+      </Button>
+      <Button
+        onMouseDown={(event) => {
+          event.preventDefault();
+          toggleMark(editor, 'italic');
+        }}
+        isActive={isMarkActive(editor, 'italic')}
+        size="sm"
+        className="mr-1"
+      >
+        <i className="w-2">i</i>
+      </Button>
+      <Button
+        onMouseDown={(event) => {
+          event.preventDefault();
+          toggleMark(editor, 'underline');
+        }}
+        isActive={isMarkActive(editor, 'underline')}
+        size="sm"
+        className="mr-3"
+      >
+        <span className="underline w-2">u</span>
+      </Button>
+
+      <Button
+        onMouseDown={(event) => {
+          event.preventDefault();
+          if (isLinkActive(editor)) {
+            unwrapLink(editor);
+          } else {
+            const url = window.prompt('Enter the URL of the link:');
+            if (url) {
+              insertLink(editor, url);
+            }
+          }
+        }}
+        isActive={isLinkActive(editor)}
+        size="sm"
+      >
+        <LinkIcon className="w-3 h-3 m-0.5" />
+      </Button>
+    </div>
+  );
+}
