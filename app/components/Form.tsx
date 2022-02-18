@@ -11,6 +11,7 @@ import { useId } from '@reach/auto-id';
 import ReactSelect from 'react-select';
 import { Link, LinkProps } from 'remix';
 import { useDropzone } from 'react-dropzone';
+import { Tooltip } from '@reach/tooltip';
 
 export type ButtonClassNameProps = {
   isActive?: boolean;
@@ -18,6 +19,7 @@ export type ButtonClassNameProps = {
   disabled?: boolean;
   full?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  label?: string;
   className?: string;
 };
 
@@ -63,11 +65,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       isActive,
       type = 'button',
+      label,
       ...props
     },
     ref
   ) => {
-    return (
+    if (label && !props['aria-label']) {
+      props['aria-label'] = label;
+    }
+    const button = (
       <button
         ref={ref}
         type={type}
@@ -84,6 +90,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {children}
       </button>
     );
+
+    if (label) {
+      return <Tooltip label={label}>{button}</Tooltip>;
+    }
+    return button;
   }
 );
 

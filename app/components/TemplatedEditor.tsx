@@ -539,6 +539,7 @@ function Toolbar() {
           isActive={isMarkActive(editor, 'bold')}
           size="sm"
           className="mr-1"
+          label="Bold"
         >
           <FaBold />
         </Button>
@@ -550,6 +551,7 @@ function Toolbar() {
           isActive={isMarkActive(editor, 'italic')}
           size="sm"
           className="mr-1"
+          label="Italic"
         >
           <FaItalic />
         </Button>
@@ -561,6 +563,7 @@ function Toolbar() {
           isActive={isMarkActive(editor, 'underline')}
           size="sm"
           className="mr-3"
+          label="Underline"
         >
           <FaUnderline />
         </Button>
@@ -578,6 +581,7 @@ function Toolbar() {
           }}
           isActive={isLinkActive(editor)}
           size="sm"
+          label="Link"
         >
           <FaLink />
         </Button>
@@ -592,6 +596,7 @@ function Toolbar() {
           size="sm"
           className="mr-1"
           disabled={!canUndo}
+          label="Undo"
         >
           <FaUndo />
         </Button>
@@ -602,6 +607,7 @@ function Toolbar() {
           }}
           size="sm"
           disabled={!canRedo}
+          label="Redo"
         >
           <FaRedo />
         </Button>
