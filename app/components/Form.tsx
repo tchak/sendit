@@ -15,6 +15,7 @@ import { useDropzone } from 'react-dropzone';
 export type ButtonClassNameProps = {
   isActive?: boolean;
   primary?: boolean;
+  disabled?: boolean;
   full?: boolean;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
@@ -26,19 +27,20 @@ export function buttonClassName({
   size = 'md',
   primary = false,
   full = false,
+  disabled = false,
   className,
 }: ButtonClassNameProps) {
   return clsx(
     'inline-flex items-center border shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-75',
-    primary ? 'border-transparent text-white' : 'border-gray-300 text-gray-700',
-    primary
-      ? isActive
-        ? 'bg-blue-700'
-        : 'bg-blue-600 hover:bg-blue-700'
-      : isActive
-      ? 'bg-gray-200'
-      : 'bg-white hover:bg-gray-50',
     {
+      'border-transparent text-white': primary,
+      'border-gray-300 text-gray-700': !primary,
+      'bg-blue-700': primary && isActive,
+      'bg-blue-600': primary && !isActive,
+      'bg-gray-200': !primary && isActive,
+      'bg-white': !primary && !isActive,
+      'hover:bg-blue-700': primary && !isActive && !disabled,
+      'hover:bg-gray-100': !primary && !isActive && !disabled,
       'px-2.5 py-1.5 text-xs rounded': size == 'sm',
       'px-3 py-2 text-sm leading-4 rounded-md': size == 'md',
       'px-4 py-2 text-sm rounded-md': size == 'lg',
@@ -74,6 +76,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           primary,
           full,
           isActive,
+          disabled: props.disabled,
           className,
         })}
         {...props}
@@ -96,6 +99,7 @@ export const LinkButton = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
           size,
           primary,
           full,
+          disabled: props.disabled,
           className,
         })}
         {...props}
