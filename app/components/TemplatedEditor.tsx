@@ -473,10 +473,12 @@ const TagElement = ({
     <span
       {...attributes}
       contentEditable={false}
-      className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800"
-      style={{
-        boxShadow: selected && focused ? '0 0 0 2px #B4D5FF' : 'none',
-      }}
+      className={clsx(
+        'inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800',
+        {
+          'outline-none ring-2 ring-blue-300': selected && focused,
+        }
+      )}
     >
       {element.tag}
       {children}
@@ -490,11 +492,14 @@ const LinkElement = ({
   element,
 }: ElementProps & { element: Link }) => {
   const selected = useSelected();
+  const focused = useFocused();
   return (
     <a
       {...attributes}
       href={element.url}
-      className={clsx('text-blue-300 underline', selected ? 'shadow-sm' : '')}
+      className={clsx('text-blue-300 underline rounded-md', {
+        'outline-none ring-2 ring-offset-2 ring-blue-300': selected && focused,
+      })}
     >
       <InlineChromiumBugfix />
       {children}
