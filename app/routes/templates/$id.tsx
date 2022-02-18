@@ -250,10 +250,16 @@ function StateTabs({
                 key={state}
                 to={`?state=${state.toLowerCase()}`}
                 className={clsx(
-                  current
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200',
-                  'whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm'
+                  'whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm',
+                  {
+                    'border-blue-500 text-blue-600':
+                      current && state == 'Pending',
+                    'border-green-500 text-green-600':
+                      current && state == 'Sent',
+                    'border-red-500 text-red-600': current && state == 'Error',
+                    'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200':
+                      !current,
+                  }
                 )}
                 aria-current={current ? 'page' : undefined}
               >
@@ -261,10 +267,15 @@ function StateTabs({
                 {count ? (
                   <span
                     className={clsx(
-                      current
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'bg-gray-100 text-gray-900',
-                      'hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'
+                      'hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block',
+                      {
+                        'bg-blue-100 text-blue-600':
+                          current && state == 'Pending',
+                        'bg-green-100 text-green-600':
+                          current && state == 'Sent',
+                        'bg-red-100 text-red-600': current && state == 'Error',
+                        'bg-gray-100 text-gray-900': !current,
+                      }
                     )}
                   >
                     {count}

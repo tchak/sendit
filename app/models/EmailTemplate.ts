@@ -98,6 +98,7 @@ export async function findById(
       to: { isEmpty: false },
       text: { not: '' },
     },
+    orderBy: { state: 'asc' },
   });
   const data = CSV.parse(template.data);
   const body = Body.parse(template.body);
