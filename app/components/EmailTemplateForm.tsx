@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useActionData } from 'remix';
+import { useActionData, Link } from 'remix';
 
 import type { Schema } from '~/models/EmailTemplate';
 import { Input, Fieldset, SelectProps } from './Form';
@@ -43,6 +43,7 @@ export function EmailTemplateFields({
 }
 
 export function EmailTemplateUpdateFields({
+  templateId,
   id,
   legend,
   transports,
@@ -50,6 +51,7 @@ export function EmailTemplateUpdateFields({
   tags,
   ...props
 }: {
+  templateId: string;
   id: string;
   legend: string;
   transports: SelectProps['options'];
@@ -96,15 +98,24 @@ export function EmailTemplateUpdateFields({
           {...getProps('data', props)}
         />
       ) : (
-        <Button
-          size="sm"
-          onClick={(event) => {
-            event.preventDefault();
-            setReplaceData(true);
-          }}
-        >
-          Replace data (CSV)
-        </Button>
+        <div>
+          <Button
+            size="sm"
+            onClick={(event) => {
+              event.preventDefault();
+              setReplaceData(true);
+            }}
+            className="block"
+          >
+            Replace data (CSV)
+          </Button>
+          <Link
+            className="mt-1 block underline text-blue-300 hover:text-blue-400"
+            to={`/templates/${templateId}/data`}
+          >
+            data
+          </Link>
+        </div>
       )}
       <Input label="Subject" required {...getProps('subject', props)} />
       <TemplatedEditor

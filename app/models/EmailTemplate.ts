@@ -112,6 +112,19 @@ export async function findById(
   };
 }
 
+export async function findDataById(id: string, userId: string) {
+  const { data, ...rest } = await prisma.emailTemplate.findUnique({
+    rejectOnNotFound: true,
+    where: { id_userId: { id, userId } },
+    select: {
+      id: true,
+      subject: true,
+      data: true,
+    },
+  });
+  return { ...rest, data: CSV.parse(data) };
+}
+
 export async function create(userId: string, form: FormData) {
   const result = getParams(form, SchemaCreate);
 

@@ -91,6 +91,7 @@ export default function EditEmailTransportRoute() {
         <EmailTemplateUpdateFields
           legend="Email Template"
           id="email-template"
+          templateId={data.id}
           values={data}
           fields={data.fields.map((value) => ({
             label: value,

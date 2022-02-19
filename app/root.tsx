@@ -143,8 +143,8 @@ function caughtMessage(caught: ThrownResponse) {
 function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <main>{children}</main>
+      <div className="max-w-3xl mx-auto h-screen">
+        <main className="h-full">{children}</main>
         <footer className="my-8 text-xs flex flex-col-reverse items-start md:items-center md:flex-row md:justify-between"></footer>
       </div>
     </div>
