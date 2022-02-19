@@ -3,7 +3,8 @@ import { useTransition, Form, useLoaderData } from 'remix';
 
 import { authenticator } from '~/util/auth.server';
 import { sessionStorage } from '~/util/session.server';
-import { Input, Button } from '~/components/Form';
+import { Input } from '~/components/Form';
+import { Button } from '~/components/Button';
 
 export const meta: MetaFunction = () => ({ title: 'Sign In' });
 export const handle = { hydrate: true };

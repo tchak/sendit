@@ -1,125 +1,88 @@
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/solid';
-import { DocumentDownloadIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
-import type {
-  ComponentPropsWithoutRef,
-  ComponentPropsWithRef,
-  ReactNode,
-} from 'react';
-import { useCallback, useState, useEffect, forwardRef } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { useId } from '@reach/auto-id';
 import ReactSelect from 'react-select';
-import { Link, LinkProps } from 'remix';
-import { useDropzone } from 'react-dropzone';
-import { Tooltip } from '@reach/tooltip';
 
-export type ButtonClassNameProps = {
-  isActive?: boolean;
-  primary?: boolean;
-  disabled?: boolean;
-  full?: boolean;
-  size?: 'sm' | 'md' | 'lg';
-  label?: string;
-  className?: string;
+export type InputGroupProps = {
+  label: string;
+  id?: string;
+  description?: string;
+  errorMessage?: string;
+  required?: boolean;
+  filled?: boolean;
+  children: ReactNode;
 };
 
-// secondary text-blue-700 bg-blue-100
-export function buttonClassName({
-  isActive = false,
-  size = 'md',
-  primary = false,
-  full = false,
-  disabled = false,
-  className,
-}: ButtonClassNameProps) {
-  return clsx(
-    'inline-flex items-center border shadow-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-75',
-    {
-      'border-transparent text-white': primary,
-      'border-gray-300 text-gray-700': !primary,
-      'bg-blue-700': primary && isActive,
-      'bg-blue-600': primary && !isActive,
-      'bg-gray-200': !primary && isActive,
-      'bg-white': !primary && !isActive,
-      'hover:bg-blue-700': primary && !isActive && !disabled,
-      'hover:bg-gray-100': !primary && !isActive && !disabled,
-      'px-2.5 py-1.5 text-xs rounded': size == 'sm',
-      'px-3 py-2 text-sm leading-4 rounded-md': size == 'md',
-      'px-4 py-2 text-sm rounded-md': size == 'lg',
-      'w-full flex justify-center': full,
-    },
-    className
+export function InputGroup({
+  label,
+  description,
+  errorMessage,
+  filled,
+  children,
+  ...props
+}: InputGroupProps) {
+  const id = useId(props.id);
+
+  return (
+    <div className="flex-1">
+      <div className="flex justify-between">
+        <label
+          htmlFor={id}
+          id={`${id}-label`}
+          className="block text-sm font-medium text-gray-700"
+          onClick={() => {
+            document
+              .querySelector<HTMLElement>(`[aria-labelledby="${id}-label"]`)
+              ?.focus();
+          }}
+        >
+          {label}
+        </label>
+        {!props.required ? (
+          <span className="text-sm text-gray-500" id={`${id}-optional`}>
+            Optional
+          </span>
+        ) : null}
+      </div>
+      <div
+        className={clsx('mt-1', {
+          'relative rounded-md shadow-sm': errorMessage,
+        })}
+      >
+        {children}
+        {filled || errorMessage ? (
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            {filled ? (
+              <CheckCircleIcon
+                className="h-5 w-5 text-green-500"
+                aria-hidden="true"
+              />
+            ) : (
+              <ExclamationCircleIcon
+                className="h-5 w-5 text-red-500"
+                aria-hidden="true"
+              />
+            )}
+          </div>
+        ) : null}
+      </div>
+      {errorMessage ? (
+        <p
+          role="alert"
+          className="mt-2 text-sm text-red-600"
+          id={`${id}-error`}
+        >
+          {errorMessage}
+        </p>
+      ) : description ? (
+        <p className="mt-2 text-sm text-gray-500" id={`${id}-description`}>
+          {description}
+        </p>
+      ) : null}
+    </div>
   );
 }
-
-export type ButtonProps = ComponentPropsWithRef<'button'> &
-  ButtonClassNameProps;
-
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      children,
-      size,
-      primary,
-      full,
-      className,
-      isActive,
-      type = 'button',
-      label,
-      ...props
-    },
-    ref
-  ) => {
-    if (label && !props['aria-label']) {
-      props['aria-label'] = label;
-    }
-    const button = (
-      <button
-        ref={ref}
-        type={type}
-        className={buttonClassName({
-          size,
-          primary,
-          full,
-          isActive,
-          disabled: props.disabled,
-          className,
-        })}
-        {...props}
-      >
-        {children}
-      </button>
-    );
-
-    if (label) {
-      return <Tooltip label={label}>{button}</Tooltip>;
-    }
-    return button;
-  }
-);
-
-export type ButtonLinkProps = LinkProps & ButtonClassNameProps;
-
-export const LinkButton = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
-  ({ children, size, primary, full, className, to, ...props }, ref) => {
-    return (
-      <Link
-        ref={ref}
-        to={to}
-        className={buttonClassName({
-          size,
-          primary,
-          full,
-          disabled: props.disabled,
-          className,
-        })}
-        {...props}
-      >
-        {children}
-      </Link>
-    );
-  }
-);
 
 export type InputProps<Name = string> = Omit<
   ComponentPropsWithoutRef<'input'>,
@@ -151,7 +114,6 @@ export function Input<Name = string>({
   label,
   description,
   errorMessage,
-  filled,
   className,
   defaultValue,
   id: inputId,
@@ -189,79 +151,56 @@ export function Input<Name = string>({
   }
 
   return (
-    <div>
-      <div className="flex justify-between">
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-          {label}
-        </label>
-        {!props.required ? (
-          <span className="text-sm text-gray-500" id={`${id}-optional`}>
-            Optional
-          </span>
-        ) : null}
-      </div>
-      <div
-        className={clsx('mt-1', {
-          'relative rounded-md shadow-sm': errorMessage,
+    <InputGroup
+      id={id}
+      label={label}
+      description={description}
+      errorMessage={errorMessage}
+      {...props}
+    >
+      <input
+        type={type}
+        id={id}
+        autoCapitalize="off"
+        autoCorrect="off"
+        autoComplete="off"
+        className={clsx(
+          'sm:text-sm rounded-md block w-full',
+          {
+            'pr-10 border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500':
+              errorMessage,
+            'shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300':
+              !errorMessage,
+          },
+          className
+        )}
+        aria-invalid={errorMessage ? 'true' : undefined}
+        aria-errormessage={errorMessage ? `${id}-error` : undefined}
+        aria-describedby={describedby({
+          id,
+          error: !!errorMessage,
+          description: !!description,
+          required: props.required,
         })}
-      >
-        <input
-          type={type}
-          id={id}
-          autoCapitalize="off"
-          autoCorrect="off"
-          autoComplete="off"
-          className={clsx(
-            'sm:text-sm rounded-md block w-full',
-            {
-              'pr-10 border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500':
-                errorMessage,
-              'shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300':
-                !errorMessage,
-            },
-            className
+        defaultValue={defaultValue ?? undefined}
+        {...props}
+      />
+      {props.filled || errorMessage ? (
+        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          {props.filled ? (
+            <CheckCircleIcon
+              className="h-5 w-5 text-green-500"
+              aria-hidden="true"
+            />
+          ) : (
+            <ExclamationCircleIcon
+              className="h-5 w-5 text-red-500"
+              aria-hidden="true"
+            />
           )}
-          aria-invalid={errorMessage ? 'true' : undefined}
-          aria-errormessage={errorMessage ? `${id}-error` : undefined}
-          aria-describedby={describedby({
-            id,
-            error: !!errorMessage,
-            description: !!description,
-            required: props.required,
-          })}
-          defaultValue={defaultValue ?? undefined}
-          {...props}
-        />
-        {filled || errorMessage ? (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            {filled ? (
-              <CheckCircleIcon
-                className="h-5 w-5 text-green-500"
-                aria-hidden="true"
-              />
-            ) : (
-              <ExclamationCircleIcon
-                className="h-5 w-5 text-red-500"
-                aria-hidden="true"
-              />
-            )}
-          </div>
-        ) : null}
-      </div>
-      {errorMessage ? (
-        <p
-          role="alert"
-          className="mt-2 text-sm text-red-600"
-          id={`${id}-error`}
-        >
-          {errorMessage}
-        </p>
-      ) : description ? (
-        <p className="mt-2 text-sm text-gray-500" id={`${id}-description`}>
-          {description}
-        </p>
+        </div>
       ) : null}
-    </div>
+    </InputGroup>
   );
 }
 
@@ -306,86 +245,6 @@ function CheckboxInput<Name = string>({
   );
 }
 
-function SelectedFile({ file, name }: { file: File; name: string }) {
-  const [valueAsText, setValueAsText] = useState<string>();
-  useEffect(() => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      setValueAsText(reader.result as string);
-    };
-    reader.readAsText(file);
-  }, [file]);
-  return (
-    <div>
-      <p>{file.name}</p>
-      <input name={name} type="hidden" defaultValue={valueAsText} />
-    </div>
-  );
-}
-
-export type FileProps<Name = string, Value = never> = Omit<
-  ComponentPropsWithoutRef<'input'>,
-  'defaultValue'
-> & {
-  label: string;
-  name: Name;
-  defaultValue?: Value;
-  description?: string;
-  errorMessage?: string;
-  filled?: boolean;
-};
-
-export function FileInput<Name = string, Value = never>({
-  id,
-  label,
-  defaultValue,
-  errorMessage,
-  ...props
-}: FileProps<Name, Value>) {
-  const [files, setFiles] = useState<File[]>();
-  const onDrop = useCallback((acceptedFiles) => {
-    setFiles(acceptedFiles);
-  }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
-  return (
-    <div>
-      <div className="flex justify-between">
-        <label htmlFor={id} className="block text-sm font-medium text-gray-700">
-          {label}
-        </label>
-        {!props.required ? (
-          <span className="text-sm text-gray-500" id={`${id}-optional`}>
-            Optional
-          </span>
-        ) : null}
-      </div>
-      {files ? (
-        <SelectedFile file={files[0]} name={props.name as string} />
-      ) : (
-        <div
-          {...getRootProps()}
-          className="mt-1 max-w-lg flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
-        >
-          <div className="space-y-1 text-center">
-            <DocumentDownloadIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <div className="flex text-sm text-gray-600">
-              <label
-                htmlFor={id}
-                className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
-              >
-                <span>Upload a file</span>
-                <input className="sr-only" {...props} {...getInputProps()} />
-              </label>
-              <p className="pl-1">or drag and drop</p>
-            </div>
-            <p className="text-xs text-gray-500">CSV</p>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
 function Select<Name = string>({
   id,
   label,
@@ -396,24 +255,17 @@ function Select<Name = string>({
   ...props
 }: SelectProps<Name>) {
   return (
-    <div className="flex-1">
-      <div className="flex justify-between">
-        <label
-          htmlFor={`${id}-input`}
-          className="block text-sm font-medium text-gray-700"
-        >
-          {label}
-        </label>
-        {!props.required ? (
-          <span className="text-sm text-gray-500" id={`${id}-optional`}>
-            Optional
-          </span>
-        ) : null}
-      </div>
+    <InputGroup
+      id={id}
+      label={label}
+      description={description}
+      errorMessage={errorMessage}
+      required={props.required}
+    >
       <ReactSelect
-        id={id}
+        id={`${id}-select`}
         instanceId={`${id}-instance`}
-        inputId={`${id}-input`}
+        inputId={id}
         name={props.name}
         className="mt-1 block w-full text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
         minMenuHeight={100}
@@ -453,7 +305,7 @@ function Select<Name = string>({
           {description}
         </p>
       ) : null}
-    </div>
+    </InputGroup>
   );
 }
 

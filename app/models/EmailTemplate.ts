@@ -5,7 +5,7 @@ import { convert as htmlToText } from 'html-to-text';
 import { getParams } from 'remix-params-helper';
 import type { EmailMessageState } from '@prisma/client';
 
-import { getErrors, Errors } from '~/util/form';
+import { Errors } from '~/util/form';
 import { prisma } from '~/util/db.server';
 import {
   Document as Body,
@@ -37,20 +37,15 @@ export type Schema = z.infer<typeof Schema>;
 const SchemaCreate = z.object({
   subject: z.string().min(1),
   transportId: z.string().uuid(),
-  data: z.string().transform((csv) => {
-    const parsedResult = Papa.parse(csv, {
-      dynamicTyping: true,
-      header: true,
-    });
-    return CSV.parse(parsedResult);
-  }),
+  data: z.string(),
 });
 
 const SchemaUpdate = z.object({
   subject: z.string().min(1),
   body: z.string(),
   transportId: z.string().uuid(),
-  emailColumns: z.string().array(),
+  emailColumns: z.string().array().default([]),
+  data: z.string().optional(),
 });
 
 export async function findById(
@@ -117,16 +112,31 @@ export async function findById(
   };
 }
 
-export function create(userId: string, form: FormData) {
-  const result = SchemaCreate.safeParse(Object.fromEntries(form));
+export async function create(userId: string, form: FormData) {
+  const result = getParams(form, SchemaCreate);
 
   if (result.success) {
+    const data = parseData(result.data.data);
+    if (!data) {
+      return {
+        errors: {
+          data: { message: 'Invalid CSV document' },
+        },
+      };
+    }
     return prisma.emailTemplate.create({
-      data: { userId, ...result.data },
+      data: { userId, ...result.data, data },
       select: { id: true },
     });
   } else {
-    return { errors: getErrors(result.error, form) };
+    return {
+      errors: Object.fromEntries(
+        Object.entries(result.errors).map(([key, message]) => [
+          key,
+          { message },
+        ])
+      ),
+    };
   }
 }
 
@@ -140,14 +150,16 @@ export async function update(id: string, userId: string, form: FormData) {
   const result = getParams(form, SchemaUpdate);
 
   if (result.success) {
+    const data = parseData(result.data.data);
+    const body = parseBody(result.data.body);
     const template = await prisma.emailTemplate.update({
       where: { id_userId: { id, userId } },
       data: {
         userId,
+        version: data ? { increment: 1 } : undefined,
         ...result.data,
-        body: result.data.body
-          ? Body.parse(JSON.parse(result.data.body))
-          : undefined,
+        data,
+        body,
       },
       select: {
         id: true,
@@ -313,4 +325,23 @@ function renderLeaf(node: Descendant, row: Row): string {
   }
   const title = node.children.map((node) => renderLeaf(node, row)).join('');
   return `[${title}](${node.url})`;
+}
+
+function parseBody(body?: string) {
+  return body ? Body.parse(JSON.parse(body)) : undefined;
+}
+
+function parseData(data?: string) {
+  if (data) {
+    const parsedResult = Papa.parse(data, {
+      dynamicTyping: true,
+      header: true,
+    });
+    if (parsedResult.data) {
+      const parsedData = CSV.safeParse(parsedResult);
+      if (parsedData.success) {
+        return parsedData.data;
+      }
+    }
+  }
 }

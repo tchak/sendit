@@ -37,6 +37,7 @@ import {
   FaRedo,
   FaLink,
 } from 'react-icons/fa';
+import { useId } from '@reach/auto-id';
 
 import type {
   Tag,
@@ -45,7 +46,8 @@ import type {
   CustomElement,
 } from '~/models/TemplateDocument';
 import { isLink, isTag } from '~/models/TemplateDocument';
-import { Button } from '~/components/Form';
+import { Button } from './Button';
+import { InputGroup } from './Form';
 
 const Portal = ({ children }: { children: ReactNode }) => {
   return typeof document === 'object'
@@ -78,21 +80,23 @@ function useEditorValue(
 }
 
 export function TemplatedEditor<Name extends string = string>({
-  id,
+  id: inputId,
   label,
   tags,
   name,
   defaultValue: initialValue,
+  description,
   errorMessage,
   className,
   ...props
 }: {
-  id?: string;
   label: string;
+  id?: string;
   name?: Name;
   placeholder?: string;
   tags: string[];
   defaultValue?: Descendant[];
+  description?: string;
   errorMessage?: string;
   className?: string;
   required?: boolean;
@@ -108,6 +112,7 @@ export function TemplatedEditor<Name extends string = string>({
     () => withInline(withReact(withHistory(createEditor()))),
     []
   );
+  const id = useId(inputId);
 
   const filteredTags = matchSorter(tags, search).slice(0, 10);
 
@@ -206,21 +211,13 @@ export function TemplatedEditor<Name extends string = string>({
           setTarget(null);
         }}
       >
-        <div>
-          <div className="flex justify-between">
-            <label
-              htmlFor={id}
-              className="block text-sm font-medium text-gray-700"
-            >
-              {label}
-            </label>
-            {!props.required ? (
-              <span className="text-sm text-gray-500" id={`${id}-optional`}>
-                Optional
-              </span>
-            ) : null}
-          </div>
-
+        <InputGroup
+          id={id}
+          label={label}
+          description={description}
+          errorMessage={errorMessage}
+          required={props.required}
+        >
           <Toolbar />
 
           <div
@@ -229,6 +226,7 @@ export function TemplatedEditor<Name extends string = string>({
             })}
           >
             <Editable
+              aria-labelledby={`${id}-label`}
               className={clsx(
                 'sm:text-sm rounded-md block w-full border p-2 h-36',
                 {
@@ -264,7 +262,7 @@ export function TemplatedEditor<Name extends string = string>({
               ))}
             </ul>
           </div>
-        </div>
+        </InputGroup>
         {target && filteredTags.length > 0 && (
           <Portal>
             <div
@@ -539,6 +537,7 @@ function Toolbar() {
           isActive={isMarkActive(editor, 'bold')}
           size="sm"
           className="mr-1"
+          aria-label="Bold"
           label="Bold"
         >
           <FaBold />
@@ -551,6 +550,7 @@ function Toolbar() {
           isActive={isMarkActive(editor, 'italic')}
           size="sm"
           className="mr-1"
+          aria-label="Italic"
           label="Italic"
         >
           <FaItalic />
@@ -563,6 +563,7 @@ function Toolbar() {
           isActive={isMarkActive(editor, 'underline')}
           size="sm"
           className="mr-3"
+          aria-label="Underline"
           label="Underline"
         >
           <FaUnderline />
@@ -581,6 +582,7 @@ function Toolbar() {
           }}
           isActive={isLinkActive(editor)}
           size="sm"
+          aria-label="Link"
           label="Link"
         >
           <FaLink />
@@ -596,6 +598,7 @@ function Toolbar() {
           size="sm"
           className="mr-1"
           disabled={!canUndo}
+          aria-label="Undo"
           label="Undo"
         >
           <FaUndo />
@@ -607,6 +610,7 @@ function Toolbar() {
           }}
           size="sm"
           disabled={!canRedo}
+          aria-label="Redo"
           label="Redo"
         >
           <FaRedo />

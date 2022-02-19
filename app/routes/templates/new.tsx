@@ -11,7 +11,7 @@ import { SkipNavContent } from '@reach/skip-nav';
 import { authenticator } from '~/util/auth.server';
 import * as EmailTemplate from '~/models/EmailTemplate';
 import * as EmailTransport from '~/models/EmailTransport';
-import { Button, LinkButton } from '~/components/Form';
+import { Button, LinkButton } from '~/components/Button';
 import { StateIcon } from '~/components/Spinner';
 import { EmailTemplateFields } from '~/components/EmailTemplateForm';
 import { Header, Breadcrumb } from '~/components/Header';
@@ -63,7 +63,6 @@ export default function NewEmailTemplateRoute() {
         noValidate
         className="space-y-6"
         aria-labelledby="email-template"
-        encType="multipart/form-data"
       >
         <EmailTemplateFields
           legend="New Email Template"

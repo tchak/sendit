@@ -15,7 +15,7 @@ import { getParamsOrFail, getSearchParamsOrFail } from 'remix-params-helper';
 
 import { authenticator } from '~/util/auth.server';
 import * as EmailTemplate from '~/models/EmailTemplate';
-import { Button, LinkButton } from '~/components/Form';
+import { Button, LinkButton } from '~/components/Button';
 import { StateIcon } from '~/components/Spinner';
 import { EmailTemplateUpdateFields } from '~/components/EmailTemplateForm';
 import { Header, Breadcrumb } from '~/components/Header';
@@ -60,7 +60,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const result = await EmailTemplate.update(templateId, user.id, form);
 
   if ('id' in result) {
-    return null;
+    return form.get('data') ? { dataUpdated: true } : null;
   }
   return result;
 };

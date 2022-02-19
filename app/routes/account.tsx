@@ -2,7 +2,7 @@ import type { MetaFunction, LoaderFunction } from 'remix';
 import { SkipNavContent } from '@reach/skip-nav';
 
 import { authenticator } from '~/util/auth.server';
-import { LinkButton } from '~/components/Form';
+import { LinkButton } from '~/components/Button';
 import { Header, Breadcrumb } from '~/components/Header';
 
 export const meta: MetaFunction = () => ({ title: 'Account' });

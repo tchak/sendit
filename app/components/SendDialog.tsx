@@ -3,7 +3,7 @@ import { useNavigate, useFetcher } from 'remix';
 import { Dialog, Transition } from '@headlessui/react';
 import { CheckIcon } from '@heroicons/react/outline';
 
-import { Button } from './Form';
+import { Button } from './Button';
 
 export function SendDialog({
   open,
