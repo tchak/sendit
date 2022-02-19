@@ -80,7 +80,7 @@ export default function EditEmailTransportRoute() {
         aria-labelledby="email-transport"
       >
         <EmailTransportFields
-          legend="Edit Email Transport"
+          legend="Sendmail Transport"
           id="email-transport"
           values={data}
           errors={transition.type == 'idle' ? actionData?.errors : undefined}

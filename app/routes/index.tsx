@@ -58,7 +58,7 @@ export default function IndexRoute() {
 
         <div>
           <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-            Email Transports
+            Sendmail Transports
           </h2>
 
           <ul

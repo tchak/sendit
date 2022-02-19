@@ -54,7 +54,7 @@ export default function NewEmailTemplateRoute() {
   return (
     <div>
       <Header title="Sendit">
-        <Breadcrumb title="New Email Template" to="/templates/new" />
+        <Breadcrumb title="New Template" to="/templates/new" />
       </Header>
       <SkipNavContent />
       <Form
@@ -65,7 +65,7 @@ export default function NewEmailTemplateRoute() {
         aria-labelledby="email-template"
       >
         <EmailTemplateFields
-          legend="New Email Template"
+          legend="New Template"
           id="email-template"
           values={{ transportId: transports[0].id }}
           transports={transports.map(({ id: value, name: label }) => ({

@@ -22,7 +22,7 @@ export function EmailTransportCard({
   const isDeleting =
     fetcher.type == 'actionSubmission' || fetcher.type == 'actionReload';
   const onDelete = () =>
-    confirm('Are you sure you want to delete this Email Transport?') &&
+    confirm('Are you sure you want to delete this Transport?') &&
     fetcher.submit(
       {},
       {
@@ -35,7 +35,7 @@ export function EmailTransportCard({
   return (
     <li
       className={clsx(
-        'col-span-1 shadow-sm rounded-md',
+        'col-span-1 shadow-sm rounded-md h-14',
         isDeleting ? 'hidden' : 'flex'
       )}
     >
@@ -82,7 +82,7 @@ export function EmailTransportCard({
 
 export function AddEmailTransportCard() {
   return (
-    <li className="col-span-1 flex shadow-sm rounded-md">
+    <li className="col-span-1 flex shadow-sm rounded-md h-14">
       <div className="bg-gray-500 flex-shrink-0 flex items-center justify-center w-16 text-white text-sm font-medium rounded-l-md">
         <PlusCircleIcon className="w-6 h-6" />
       </div>
@@ -92,7 +92,7 @@ export function AddEmailTransportCard() {
             to="/transports/new"
             className="text-gray-900 font-medium hover:text-gray-600"
           >
-            New Email Transport
+            New Transport
           </Link>
         </div>
       </div>

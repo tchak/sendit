@@ -9,8 +9,6 @@ import { useFetcher } from 'remix';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import clsx from 'clsx';
 
-import { nbsp } from '~/util';
-
 export function EmailTemplateCard({
   id,
   subject,
@@ -22,7 +20,7 @@ export function EmailTemplateCard({
   const isDeleting =
     fetcher.type == 'actionSubmission' || fetcher.type == 'actionReload';
   const onDelete = () =>
-    confirm('Are you sure you want to delete this Email Template?') &&
+    confirm('Are you sure you want to delete this Template?') &&
     fetcher.submit(
       {},
       {
@@ -35,7 +33,7 @@ export function EmailTemplateCard({
   return (
     <li
       className={clsx(
-        'col-span-1 shadow-sm rounded-md',
+        'col-span-1 shadow-sm rounded-md h-14',
         isDeleting ? 'hidden' : 'flex'
       )}
     >
@@ -50,7 +48,6 @@ export function EmailTemplateCard({
           >
             {subject}
           </Link>
-          <div>{nbsp(' ')}</div>
         </div>
         <div className="flex-shrink-0 pr-2">
           <Menu>
@@ -82,7 +79,7 @@ export function EmailTemplateCard({
 
 export function AddEmailTemplateCard() {
   return (
-    <li className="col-span-1 flex shadow-sm rounded-md">
+    <li className="col-span-1 flex shadow-sm rounded-md h-14">
       <div className="bg-gray-500 flex-shrink-0 flex items-center justify-center w-16 text-white text-sm font-medium rounded-l-md">
         <PlusCircleIcon className="w-6 h-6" />
       </div>
@@ -92,7 +89,7 @@ export function AddEmailTemplateCard() {
             to="/templates/new"
             className="text-gray-900 font-medium hover:text-gray-600"
           >
-            New Email Template
+            New Template
           </Link>
         </div>
       </div>

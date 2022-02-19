@@ -72,14 +72,15 @@ export function EmailTemplateUpdateFields({
     <Fieldset id={id} legend={legend}>
       <div className="flex justify-between gap-3">
         <Input
-          label="Email Column"
+          label='"To" Column'
           required
           multiple
           options={fields}
           {...getProps('emailColumns', props)}
+          id="toColumn"
         />
         <Input
-          label="Email Transport"
+          label="Sendmail Transport"
           required
           options={transports}
           {...getProps('transportId', props)}

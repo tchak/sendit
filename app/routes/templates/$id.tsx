@@ -89,7 +89,7 @@ export default function EditEmailTransportRoute() {
         aria-labelledby="email-template"
       >
         <EmailTemplateUpdateFields
-          legend="Edit Email Template"
+          legend="Email Template"
           id="email-template"
           values={data}
           fields={data.fields.map((value) => ({

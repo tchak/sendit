@@ -161,9 +161,10 @@ export function Input<Name = string>({
       <input
         type={type}
         id={id}
-        autoCapitalize="off"
+        autoCapitalize="none"
         autoCorrect="off"
         autoComplete="off"
+        spellCheck={false}
         className={clsx(
           'sm:text-sm rounded-md block w-full',
           {

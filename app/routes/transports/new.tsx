@@ -10,7 +10,7 @@ import { EmailTransportFields } from '~/components/EmailTransportForm';
 import { Header, Breadcrumb } from '~/components/Header';
 
 export const meta: MetaFunction = () => ({
-  title: 'Sendit - New Email Transport',
+  title: 'Sendit - New Transport',
 });
 export const handle = { hydrate: true };
 export const action: ActionFunction = async ({ request }) => {
@@ -36,7 +36,7 @@ export default function NewEmailTransportRoute() {
   return (
     <div>
       <Header title="Sendit">
-        <Breadcrumb title="New Email Transport" to="/transports/new" />
+        <Breadcrumb title="New Transport" to="/transports/new" />
       </Header>
       <SkipNavContent />
       <Form
@@ -47,7 +47,7 @@ export default function NewEmailTransportRoute() {
         aria-labelledby="email-transport"
       >
         <EmailTransportFields
-          legend="New Email Transport"
+          legend="New Transport"
           id="email-transport"
           errors={transition.type == 'idle' ? actionData?.errors : undefined}
           disabled={transition.state == 'submitting'}
