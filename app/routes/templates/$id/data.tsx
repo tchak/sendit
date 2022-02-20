@@ -26,23 +26,36 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 };
 
 type LoaderData = Awaited<ReturnType<typeof EmailTemplate.findDataById>>;
-type Row = LoaderData['data']['data'][0];
+type Row = LoaderData['data']['data'][0] & { id: number };
+type SummaryRow = {
+  id: string;
+  totalCount: number;
+};
 
 export default function EmailTemplateDataRoute() {
-  const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
   const data = useLoaderData<LoaderData>();
-  const columns = useMemo(
-    () => data.data.meta.fields.map((name) => getColumn(name)),
-    [data]
+  const [rows, setRows] = useState(() =>
+    data.data.data.map((row, index) => ({ id: index, ...row }))
   );
-  const rows = useMemo<Row[]>(
-    () => data.data.data.map((row, index) => ({ id: index, ...row })),
+  const [sortColumns, setSortColumns] = useState<SortColumn[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(
+    () => new Set()
+  );
+  const columns = useMemo(
+    () => data.data.meta.fields.map((name, index) => getColumn(name, index)),
     [data]
   );
   const sortedRows = useMemo(
     () => sortRows(rows, sortColumns),
     [rows, sortColumns]
   );
+  const summaryRows = useMemo(() => {
+    const summaryRow: SummaryRow = {
+      id: 'total_0',
+      totalCount: rows.length,
+    };
+    return [summaryRow];
+  }, [rows]);
 
   return (
     <div className="h-full flex flex-col">
@@ -56,10 +69,15 @@ export default function EmailTemplateDataRoute() {
         rowKeyGetter={rowKeyGetter}
         columns={columns}
         rows={sortedRows}
+        summaryRows={summaryRows}
         defaultColumnOptions={defaultColumnOptions}
         sortColumns={sortColumns}
         onSortColumnsChange={setSortColumns}
+        selectedRows={selectedRows}
+        onSelectedRowsChange={setSelectedRows}
+        onRowsChange={setRows}
         className="flex-grow rdg-light"
+        cellNavigationMode="CHANGE_ROW"
       />
     </div>
   );
@@ -70,17 +88,18 @@ const defaultColumnOptions = {
   sortable: true,
   minWidth: 100,
 };
-
-const rowKeyGetter = (row: Row) => String(row['id']);
-
-const getColumn = (name: string) => {
+const rowKeyGetter = (row: Row) => row.id;
+const summaryFormatter = ({ row }: { row: SummaryRow }) => (
+  <>{row.totalCount} rows</>
+);
+const getColumn = (name: string, index: number) => {
   return {
     key: name,
     name,
     width: 150,
+    summaryFormatter: index == 0 ? summaryFormatter : undefined,
   };
 };
-
 const sortRows = (rows: Row[], sortColumns: SortColumn[]) => {
   if (sortColumns.length == 0) return rows;
 
