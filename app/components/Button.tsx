@@ -34,9 +34,9 @@ export function buttonClassName({
       'bg-white': !primary && !isActive,
       'hover:bg-blue-700': primary && !isActive && !disabled,
       'hover:bg-gray-100': !primary && !isActive && !disabled,
-      'px-2.5 py-1.5 text-xs rounded': size == 'sm',
-      'px-3 py-2 text-sm leading-4 rounded-md': size == 'md',
-      'px-4 py-2 text-sm rounded-md': size == 'lg',
+      'text-xs rounded px-2.5 py-1.5': size == 'sm',
+      'text-sm rounded-md px-3 py-2 leading-4': size == 'md',
+      'text-sm rounded-md px-4 py-2': size == 'lg',
       'w-full flex justify-center': full,
     },
     className
@@ -86,9 +86,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   }
 );
 
-export type ButtonLinkProps = LinkProps & ButtonClassNameProps;
+export type LinkButtonProps = LinkProps & ButtonClassNameProps;
 
-export const LinkButton = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
   (
     { children, size, primary, full, className, isActive, label, to, ...props },
     ref
