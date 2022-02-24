@@ -7,8 +7,14 @@ import {
   ScrollRestoration,
   useCatch,
   useMatches,
+  useLoaderData,
 } from 'remix';
-import type { LinksFunction, ThrownResponse, MetaFunction } from 'remix';
+import type {
+  LinksFunction,
+  ThrownResponse,
+  MetaFunction,
+  LoaderFunction,
+} from 'remix';
 import { ReactNode } from 'react';
 import { SkipNavLink } from '@reach/skip-nav';
 
@@ -58,9 +64,24 @@ export const links: LinksFunction = () => {
   ];
 };
 
+type GlobalENV = Record<string, string | undefined>;
+
+export const loader: LoaderFunction = () => {
+  return {
+    ENV: {
+      APP_DOMAIN: process.env['APP_DOMAIN'],
+      COMMIT_ID: process.env['COMMIT_ID'],
+      SENTRY_DSN: process.env['SENTRY_DSN'],
+    },
+  };
+};
+
+export const unstable_shouldReload = () => false;
+
 export default function App() {
+  const { ENV } = useLoaderData<{ ENV: GlobalENV }>();
   return (
-    <Document>
+    <Document ENV={ENV}>
       <Outlet />
     </Document>
   );
@@ -87,11 +108,13 @@ function Document({
   title,
   lang = 'en',
   skipNavLink = true,
+  ENV,
 }: {
   children: React.ReactNode;
   title?: string;
   lang?: string;
   skipNavLink?: boolean;
+  ENV?: GlobalENV;
 }) {
   const matches = useMatches();
   const includeScripts = matches.some((match) => match.handle?.hydrate);
@@ -113,6 +136,23 @@ function Document({
         <ScrollRestoration />
         {includeScripts ? <Scripts /> : null}
         {process.env.NODE_ENV == 'development' && <LiveReload />}
+        {ENV ? (
+          <>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.ENV = ${JSON.stringify(ENV)};`,
+              }}
+            />
+            {process.env.NODE_ENV == 'production' && (
+              <script
+                async
+                defer
+                data-domain={ENV['APP_DOMAIN']}
+                src="https://plausible.io/js/plausible.js"
+              />
+            )}
+          </>
+        ) : null}
       </body>
     </html>
   );
