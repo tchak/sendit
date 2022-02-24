@@ -12,7 +12,6 @@ import {
   isList,
   isTag,
   Descendant,
-  FormattedText,
 } from './TemplateDocument';
 
 export type ActionData = { errors?: Errors<Schema> };
@@ -277,7 +276,7 @@ function isValidRow(body: Body, row: Row) {
   return tags.length == 0 || tags.every(({ tag }) => !!row[tag]);
 }
 
-function renderBody(body: Body, row: Row): string {
+export function renderBody(body: Body, row: Row): string {
   return body
     .map((node) => {
       if (isList(node)) {
@@ -326,18 +325,20 @@ function renderHTML(
   </mjml>`).html;
 }
 
-function renderText(node: FormattedText) {
-  return node.text;
-}
-
 function renderLeaf(node: Descendant, row: Row): string {
   if ('text' in node) {
-    return renderText(node);
+    return node.text;
   } else if (node.type == 'tag') {
-    return String(row[node.tag]);
+    const value = String(row[node.tag]);
+    const fileLink = `${value}`.match(/(.+) \((https:\/\/.+)\)/);
+    if (fileLink) {
+      const [, title, url] = fileLink;
+      return `<a href="${url}">${title}</a>`;
+    }
+    return value;
   }
   const title = node.children.map((node) => renderLeaf(node, row)).join('');
-  return `[${title}](${node.url})`;
+  return `<a href="${node.url}">${title}</a>`;
 }
 
 function parseBody(body?: string) {
