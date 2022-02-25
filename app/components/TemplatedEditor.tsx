@@ -228,7 +228,7 @@ export function TemplatedEditor<Name extends string = string>({
             <Editable
               aria-labelledby={`${id}-label`}
               className={clsx(
-                'sm:text-sm rounded-md block w-full border p-2 h-36',
+                'sm:text-sm rounded-md block w-full border p-2 min-h-[9rem]',
                 {
                   'pr-10 border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500':
                     errorMessage,
