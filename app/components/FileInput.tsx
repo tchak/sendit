@@ -57,7 +57,7 @@ export function FileInput<Name = string, Value = never>({
       <div
         {...getRootProps()}
         className={clsx(
-          'mt-1 max-w-lg flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md relative',
+          'relative mt-1 flex max-w-lg justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6',
           { 'border-blue-300': isDragActive }
         )}
       >
@@ -74,7 +74,7 @@ export function FileInput<Name = string, Value = never>({
                 setFile(undefined);
               }}
             >
-              <XCircleIcon className="w-5 h-5 hover:text-red-500" />
+              <XCircleIcon className="h-5 w-5 hover:text-red-500" />
             </button>
           </div>
         ) : null}
@@ -83,7 +83,7 @@ export function FileInput<Name = string, Value = never>({
           <div className="flex text-sm text-gray-600">
             <label
               htmlFor={id}
-              className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+              className="relative cursor-pointer rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500"
             >
               <span>Upload a file</span>
               <input className="sr-only" {...getInputProps()} />

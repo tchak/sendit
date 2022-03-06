@@ -228,11 +228,11 @@ export function TemplatedEditor<Name extends string = string>({
             <Editable
               aria-labelledby={`${id}-label`}
               className={clsx(
-                'sm:text-sm rounded-md block w-full border p-2 min-h-[9rem]',
+                'block min-h-[9rem] w-full rounded-md border p-2 sm:text-sm',
                 {
-                  'pr-10 border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500':
+                  'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500':
                     errorMessage,
-                  'shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300':
+                  'border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500':
                     !errorMessage,
                 },
                 className
@@ -254,7 +254,7 @@ export function TemplatedEditor<Name extends string = string>({
                       event.preventDefault();
                       selectTag(tag);
                     }}
-                    className="mr-1 mb-0.5 items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800"
+                    className="mr-1 mb-0.5 items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800"
                   >
                     {tag}
                   </button>
@@ -267,7 +267,7 @@ export function TemplatedEditor<Name extends string = string>({
           <Portal>
             <div
               ref={ref}
-              className="absolute p-1 z-10 rounded-md bg-white shadow-md"
+              className="absolute z-10 rounded-md bg-white p-1 shadow-md"
               style={{
                 top: '-9999px',
                 left: '-9999px',
@@ -282,7 +282,7 @@ export function TemplatedEditor<Name extends string = string>({
                     selectTag(tag);
                   }}
                   className={clsx(
-                    'rounded-md block w-full text-left px-1 py-0.5',
+                    'block w-full rounded-md px-1 py-0.5 text-left',
                     {
                       'bg-blue-200': i == index,
                     }
@@ -479,7 +479,7 @@ const TagElement = ({
       {...attributes}
       contentEditable={false}
       className={clsx(
-        'inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800',
+        'inline-flex items-center rounded-md bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800',
         {
           'outline-none ring-2 ring-blue-300': selected && focused,
         }
@@ -502,8 +502,8 @@ const LinkElement = ({
     <a
       {...attributes}
       href={element.url}
-      className={clsx('text-blue-300 underline rounded-md', {
-        'outline-none ring-2 ring-offset-2 ring-blue-300': selected && focused,
+      className={clsx('rounded-md text-blue-300 underline', {
+        'outline-none ring-2 ring-blue-300 ring-offset-2': selected && focused,
       })}
     >
       <InlineChromiumBugfix />
@@ -527,7 +527,7 @@ function Toolbar() {
   const canRedo = editor.history.redos.length > 0;
 
   return (
-    <div className="flex items-center mt-1 justify-between">
+    <div className="mt-1 flex items-center justify-between">
       <div className="flex items-center">
         <Button
           onMouseDown={(event) => {

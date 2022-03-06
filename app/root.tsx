@@ -130,7 +130,7 @@ function Document({
       </head>
       <body>
         {skipNavLink ? (
-          <SkipNavLink className="rounded-md underline shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500" />
+          <SkipNavLink className="rounded-md underline shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-100" />
         ) : null}
         <Layout>{children}</Layout>
         <ScrollRestoration />
@@ -182,10 +182,10 @@ function caughtMessage(caught: ThrownResponse) {
 
 function Layout({ children }: { children: ReactNode }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto h-screen">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto h-screen max-w-3xl">
         <main className="h-full">{children}</main>
-        <footer className="my-8 text-xs flex flex-col-reverse items-start md:items-center md:flex-row md:justify-between"></footer>
+        <footer className="my-8 flex flex-col-reverse items-start text-xs md:flex-row md:items-center md:justify-between"></footer>
       </div>
     </div>
   );

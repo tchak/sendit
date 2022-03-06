@@ -154,27 +154,27 @@ export default function EditEmailTransportRoute() {
 
 function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
   return (
-    <li className="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
+    <li className="mb-4 overflow-hidden bg-white shadow sm:rounded-lg">
       <div className="px-2 py-3 sm:p-0">
         <dl className="sm:divide-y sm:divide-gray-200">
-          <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+          <div className="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3 sm:px-3">
             <dt className="text-sm font-medium text-gray-500">to:</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
               {message.to.join(', ')}
             </dd>
           </div>
-          <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+          <div className="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3 sm:px-3">
             <dt className="text-sm font-medium text-gray-500">subject:</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
               {message.subject}
             </dd>
           </div>
-          <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+          <div className="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3 sm:px-3">
             <dt className="text-sm font-medium text-gray-500">state:</dt>
-            <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
               <span
                 className={clsx(
-                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
                   {
                     'bg-green-100 text-green-800': message.state == 'Sent',
                     'bg-red-100 text-red-800': message.state == 'Error',
@@ -187,11 +187,11 @@ function EmailPreview({ message }: { message: LoaderData['messages'][0] }) {
             </dd>
           </div>
           {message.lastErrorMessage ? (
-            <div className="py-2 sm:py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
+            <div className="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-3 sm:px-3">
               <dt className="text-sm font-medium text-gray-500">
                 error message:
               </dt>
-              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                 {message.lastErrorMessage}
               </dd>
             </div>
@@ -229,7 +229,7 @@ function StateTabs({
         <select
           id="state"
           name="state"
-          className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+          className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           defaultValue={current?.state ?? 'Pending'}
           onChange={(event) => {
             navigate(`?state=${event.target.value.toLowerCase()}`);
@@ -248,14 +248,14 @@ function StateTabs({
                 key={state}
                 to={`?state=${state.toLowerCase()}`}
                 className={clsx(
-                  'whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm',
+                  'flex whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium',
                   {
                     'border-blue-500 text-blue-600':
                       current && state == 'Pending',
                     'border-green-500 text-green-600':
                       current && state == 'Sent',
                     'border-red-500 text-red-600': current && state == 'Error',
-                    'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200':
+                    'border-transparent text-gray-500 hover:border-gray-200 hover:text-gray-700':
                       !current,
                   }
                 )}
@@ -265,7 +265,7 @@ function StateTabs({
                 {count ? (
                   <span
                     className={clsx(
-                      'hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block',
+                      'ml-3 hidden rounded-full py-0.5 px-2.5 text-xs font-medium md:inline-block',
                       {
                         'bg-blue-100 text-blue-600':
                           current && state == 'Pending',

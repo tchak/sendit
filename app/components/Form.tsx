@@ -52,7 +52,7 @@ export function InputGroup({
       >
         {children}
         {filled || errorMessage ? (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
             {filled ? (
               <CheckCircleIcon
                 className="h-5 w-5 text-green-500"
@@ -166,11 +166,11 @@ export function Input<Name = string>({
         autoComplete="off"
         spellCheck={false}
         className={clsx(
-          'sm:text-sm rounded-md block w-full',
+          'block w-full rounded-md sm:text-sm',
           {
-            'pr-10 border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500':
+            'border-red-300 pr-10 text-red-900 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500':
               errorMessage,
-            'shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300':
+            'border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500':
               !errorMessage,
           },
           className
@@ -187,7 +187,7 @@ export function Input<Name = string>({
         {...props}
       />
       {props.filled || errorMessage ? (
-        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
           {props.filled ? (
             <CheckCircleIcon
               className="h-5 w-5 text-green-500"
@@ -214,7 +214,7 @@ function CheckboxInput<Name = string>({
 }: Omit<InputProps<Name>, 'defaultValue'>) {
   return (
     <div className="relative flex items-start">
-      <div className="flex items-center h-5">
+      <div className="flex h-5 items-center">
         <input
           type="checkbox"
           id={id}
@@ -224,7 +224,7 @@ function CheckboxInput<Name = string>({
             description: !!description,
             required: false,
           })}
-          className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           {...props}
         />
       </div>
@@ -268,7 +268,7 @@ function Select<Name = string>({
         instanceId={`${id}-instance`}
         inputId={id}
         name={props.name}
-        className="mt-1 block w-full text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+        className="mt-1 block w-full rounded-md border-gray-300 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         minMenuHeight={100}
         isMulti={multiple}
         defaultValue={

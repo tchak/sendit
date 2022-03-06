@@ -110,7 +110,7 @@ export function EmailTemplateUpdateFields({
             Replace data (CSV)
           </Button>
           <Link
-            className="mt-1 block underline text-blue-300 hover:text-blue-400"
+            className="mt-1 block text-blue-300 underline hover:text-blue-400"
             to={`/templates/${templateId}/data`}
           >
             data

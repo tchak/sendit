@@ -6,11 +6,11 @@ export type State = 'ok' | 'error' | 'loading' | 'idle';
 export function StateIcon({ state }: { state: State }) {
   switch (state) {
     case 'ok':
-      return <CheckCircleIcon className="h-4 w-4 text-green-500 mr-2" />;
+      return <CheckCircleIcon className="mr-2 h-4 w-4 text-green-500" />;
     case 'error':
-      return <ExclamationCircleIcon className="h-4 w-4 text-red-500 mr-2" />;
+      return <ExclamationCircleIcon className="mr-2 h-4 w-4 text-red-500" />;
     case 'loading':
-      return <Spinner className="h-4 w-4 text-white mr-2" />;
+      return <Spinner className="mr-2 h-4 w-4 text-white" />;
     default:
       return null;
   }
@@ -19,7 +19,7 @@ export function StateIcon({ state }: { state: State }) {
 function Spinner({ className }: { className?: string }) {
   return (
     <svg
-      className={clsx('hidden motion-safe:block animate-spin', className)}
+      className={clsx('hidden animate-spin motion-safe:block', className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

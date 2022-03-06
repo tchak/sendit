@@ -58,7 +58,7 @@ export default function EmailTemplateDataRoute() {
   }, [rows]);
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col">
       <Header title="Sendit">
         <Breadcrumb title={data.subject} to={`/templates/${data.id}`} />
         <Breadcrumb title="data" to={`/templates/${data.id}/data`} />
@@ -76,7 +76,7 @@ export default function EmailTemplateDataRoute() {
         selectedRows={selectedRows}
         onSelectedRowsChange={setSelectedRows}
         onRowsChange={setRows}
-        className="flex-grow rdg-light"
+        className="rdg-light flex-grow"
         cellNavigationMode="CHANGE_ROW"
       />
     </div>

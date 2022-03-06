@@ -35,18 +35,18 @@ export function EmailTransportCard({
   return (
     <li
       className={clsx(
-        'col-span-1 shadow-sm rounded-md h-14',
+        'col-span-1 h-14 rounded-md shadow-sm',
         isDeleting ? 'hidden' : 'flex'
       )}
     >
-      <div className="bg-green-500 flex-shrink-0 flex items-center justify-center w-16 text-white text-sm font-medium rounded-l-md">
-        <LightningBoltIcon className="w-6 h-6" />
+      <div className="flex w-16 flex-shrink-0 items-center justify-center rounded-l-md bg-green-500 text-sm font-medium text-white">
+        <LightningBoltIcon className="h-6 w-6" />
       </div>
-      <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
-        <div className="flex-1 px-4 py-2 text-sm truncate">
+      <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-t border-r border-b border-gray-200 bg-white">
+        <div className="flex-1 truncate px-4 py-2 text-sm">
           <Link
             to={`/transports/${id}`}
-            className="text-gray-900 font-medium hover:text-gray-600"
+            className="font-medium text-gray-900 hover:text-gray-600"
           >
             {name}
           </Link>
@@ -56,18 +56,18 @@ export function EmailTransportCard({
           <Menu>
             <MenuButton
               id={`menu-${id}`}
-              className="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-400 rounded-full bg-transparent hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white bg-transparent text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <span className="sr-only">Open menu</span>
-              <DotsVerticalIcon className="w-5 h-5" aria-hidden="true" />
+              <DotsVerticalIcon className="h-5 w-5" aria-hidden="true" />
             </MenuButton>
-            <MenuList className="p-0.5 shadow-sm rounded-md">
+            <MenuList className="rounded-md p-0.5 shadow-sm">
               <MenuItem
                 onSelect={onDelete}
                 className="flex items-center rounded-md"
               >
                 <TrashIcon
-                  className="w-5 h-5 text-red-500 mr-1"
+                  className="mr-1 h-5 w-5 text-red-500"
                   aria-hidden="true"
                 />
                 Delete
@@ -82,15 +82,15 @@ export function EmailTransportCard({
 
 export function AddEmailTransportCard() {
   return (
-    <li className="col-span-1 flex shadow-sm rounded-md h-14">
-      <div className="bg-gray-500 flex-shrink-0 flex items-center justify-center w-16 text-white text-sm font-medium rounded-l-md">
-        <PlusCircleIcon className="w-6 h-6" />
+    <li className="col-span-1 flex h-14 rounded-md shadow-sm">
+      <div className="flex w-16 flex-shrink-0 items-center justify-center rounded-l-md bg-gray-500 text-sm font-medium text-white">
+        <PlusCircleIcon className="h-6 w-6" />
       </div>
-      <div className="flex-1 flex items-center justify-between border-t border-r border-b border-gray-200 bg-white rounded-r-md truncate">
-        <div className="flex-1 px-4 py-2 text-sm truncate">
+      <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-t border-r border-b border-gray-200 bg-white">
+        <div className="flex-1 truncate px-4 py-2 text-sm">
           <Link
             to="/transports/new"
-            className="text-gray-900 font-medium hover:text-gray-600"
+            className="font-medium text-gray-900 hover:text-gray-600"
           >
             New Transport
           </Link>

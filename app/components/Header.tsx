@@ -8,7 +8,7 @@ export function Breadcrumb({ title, to }: { title: string; to: string }) {
     <li>
       <div className="flex items-center">
         <ChevronRightIcon
-          className="flex-shrink-0 h-5 w-5 text-gray-400"
+          className="h-5 w-5 flex-shrink-0 text-gray-400"
           aria-hidden="true"
         />
         <Link
@@ -39,7 +39,7 @@ export function Header({
             className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700"
           >
             <ChevronLeftIcon
-              className="flex-shrink-0 -ml-1 mr-1 h-5 w-5 text-gray-400"
+              className="-ml-1 mr-1 h-5 w-5 flex-shrink-0 text-gray-400"
               aria-hidden="true"
             />
             Back
@@ -62,18 +62,18 @@ export function Header({
         </nav>
       </div>
       <div className="mt-2 md:flex md:items-center md:justify-between">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl">
             {title}
           </h1>
         </div>
-        <div className="mt-4 flex-shrink-0 flex md:mt-0 md:ml-4">
+        <div className="mt-4 flex flex-shrink-0 md:mt-0 md:ml-4">
           <Link
             to="/account"
-            className="font-normal leading-none text-base text-gray-400"
+            className="text-base font-normal leading-none text-gray-400"
           >
             <span className="sr-only">Account</span>
-            <UserCircleIcon className="w-7 h-7" aria-hidden />
+            <UserCircleIcon className="h-7 w-7" aria-hidden />
           </Link>
         </div>
       </div>

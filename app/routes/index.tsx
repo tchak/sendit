@@ -40,13 +40,13 @@ export default function IndexRoute() {
       <div>
         {hasTransports ? (
           <div className="mb-5">
-            <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+            <h2 className="text-xs font-medium uppercase tracking-wide text-gray-500">
               Email Templates
             </h2>
 
             <ul
               role="list"
-              className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3"
+              className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
             >
               {user.templates.map((template) => (
                 <EmailTemplateCard key={template.id} {...template} />
@@ -57,13 +57,13 @@ export default function IndexRoute() {
         ) : null}
 
         <div>
-          <h2 className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+          <h2 className="text-xs font-medium uppercase tracking-wide text-gray-500">
             Sendmail Transports
           </h2>
 
           <ul
             role="list"
-            className="mt-3 grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
           >
             {user.transports.map((transports) => (
               <EmailTransportCard key={transports.id} {...transports} />
