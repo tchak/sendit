@@ -1,4 +1,4 @@
-import { renderBody } from './EmailTemplate';
+import { renderBody, isValidRow } from './EmailTemplate';
 
 describe('renderBody', () => {
   it('empty', () => {
@@ -37,6 +37,74 @@ describe('renderBody', () => {
       { Name: 'Paul' }
     );
     expect(body).toEqual('<mj-text>Hello Paul!</mj-text>');
+  });
+
+  it('paragraph with a string tag is valid', () => {
+    const isValid = isValidRow(
+      [
+        {
+          type: 'paragraph',
+          children: [
+            { text: 'Hello ' },
+            { type: 'tag', tag: 'Name', children: [] },
+            { text: '!' },
+          ],
+        },
+      ],
+      { Name: 'Paul' }
+    );
+    expect(isValid).toBeTruthy();
+  });
+
+  it('paragraph with a zero tag is valid', () => {
+    const isValid = isValidRow(
+      [
+        {
+          type: 'paragraph',
+          children: [
+            { text: 'Hello ' },
+            { type: 'tag', tag: 'Name', children: [] },
+            { text: '!' },
+          ],
+        },
+      ],
+      { Name: 0 }
+    );
+    expect(isValid).toBeTruthy();
+  });
+
+  it('paragraph with a null tag is invalid', () => {
+    const isValid = isValidRow(
+      [
+        {
+          type: 'paragraph',
+          children: [
+            { text: 'Hello ' },
+            { type: 'tag', tag: 'Name', children: [] },
+            { text: '!' },
+          ],
+        },
+      ],
+      { Name: null }
+    );
+    expect(isValid).toBeFalsy();
+  });
+
+  it('paragraph with a undefined tag is invalid', () => {
+    const isValid = isValidRow(
+      [
+        {
+          type: 'paragraph',
+          children: [
+            { text: 'Hello ' },
+            { type: 'tag', tag: 'Name', children: [] },
+            { text: '!' },
+          ],
+        },
+      ],
+      {}
+    );
+    expect(isValid).toBeFalsy();
   });
 
   it('paragraph with a tag with file', () => {

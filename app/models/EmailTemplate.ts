@@ -267,13 +267,13 @@ function getMessages({
   return messages;
 }
 
-function isValidRow(body: Body, row: Row) {
+export function isValidRow(body: Body, row: Row): boolean {
   const tags = body.flatMap((element) =>
     isList(element)
       ? element.children.flatMap((element) => element.children.filter(isTag))
       : element.children.filter(isTag)
   );
-  return tags.length == 0 || tags.every(({ tag }) => !!row[tag]);
+  return tags.length == 0 || tags.every(({ tag }) => row[tag] != null);
 }
 
 export function renderBody(body: Body, row: Row): string {
