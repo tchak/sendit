@@ -137,7 +137,7 @@ export default function EditEmailTransportRoute() {
         <StateTabs states={states} className="mt-6" />
       ) : null}
 
-      <ul role="list" className="mt-6">
+      <ul className="mt-6">
         {data.messages.map((message, index) => (
           <EmailPreview key={message.to.join(',') + index} message={message} />
         ))}

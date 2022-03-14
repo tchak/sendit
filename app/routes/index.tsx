@@ -44,10 +44,7 @@ export default function IndexRoute() {
               Email Templates
             </h2>
 
-            <ul
-              role="list"
-              className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
-            >
+            <ul className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {user.templates.map((template) => (
                 <EmailTemplateCard key={template.id} {...template} />
               ))}
@@ -61,10 +58,7 @@ export default function IndexRoute() {
             Sendmail Transports
           </h2>
 
-          <ul
-            role="list"
-            className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
-          >
+          <ul className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             {user.transports.map((transports) => (
               <EmailTransportCard key={transports.id} {...transports} />
             ))}

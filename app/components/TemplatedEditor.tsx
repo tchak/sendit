@@ -245,7 +245,7 @@ export function TemplatedEditor<Name extends string = string>({
               autoCorrect="off"
               spellCheck="false"
             />
-            <ul role="list" className="mt-1">
+            <ul className="mt-1">
               {tags.map((tag) => (
                 <li key={tag} className="inline-flex">
                   <button

@@ -87,6 +87,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-typestrict": "^1.0.2",
     "eslint-plugin-jest": "^26.1.1",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react-hooks": "^4.3.0",
     "jest": "^27.5.1",
@@ -123,6 +124,7 @@
       "plugin:@typescript-eslint/recommended",
       "plugin:react-hooks/recommended",
       "plugin:jest/recommended",
+      "plugin:jsx-a11y/strict",
       "prettier"
     ],
     "rules": {},
