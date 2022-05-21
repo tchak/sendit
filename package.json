@@ -29,7 +29,6 @@
     "@headlessui/react": "^1.6.2",
     "@heroicons/react": "^1.0.6",
     "@prisma/client": "3.14.0",
-    "@reach/auto-id": "^0.17.0",
     "@reach/menu-button": "^0.17.0",
     "@reach/skip-nav": "^0.17.0",
     "@reach/tooltip": "^0.17.0",

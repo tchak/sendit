@@ -2,8 +2,8 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import { ExclamationCircleIcon, CheckCircleIcon } from '@heroicons/react/solid';
 import clsx from 'clsx';
+import { useId } from 'react';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import { useId } from '@reach/auto-id';
 import ReactSelect from 'react-select';
 
 export type InputGroupProps = {
@@ -24,7 +24,8 @@ export function InputGroup({
   children,
   ...props
 }: InputGroupProps) {
-  const id = useId(props.id);
+  const autoId = useId();
+  const id = props.id ? props.id : autoId;
 
   return (
     <div className="flex-1">
@@ -121,7 +122,8 @@ export function Input<Name = string>({
   id: inputId,
   ...props
 }: InputProps<Name> | SelectProps<Name>) {
-  const id = useId(inputId);
+  const autoId = useId();
+  const id = inputId ? inputId : autoId;
 
   if ('options' in props) {
     return (

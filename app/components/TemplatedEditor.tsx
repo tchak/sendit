@@ -1,4 +1,11 @@
-import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
+import {
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+  useState,
+  useId,
+} from 'react';
 import type { ReactElement, KeyboardEventHandler } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -32,7 +39,6 @@ import {
   FaRedo,
   FaLink,
 } from 'react-icons/fa';
-import { useId } from '@reach/auto-id';
 
 import type { Tag, Link, FormattedText } from '~/models/TemplateDocument';
 import { isLink, isTag } from '~/models/TemplateDocument';
@@ -111,9 +117,13 @@ export function TemplatedEditor<Name extends string = string>({
     () => withInline(withReact(withHistory(createEditor()))),
     []
   );
-  const id = useId(inputId);
+  const autoId = useId();
+  const id = inputId ? inputId : autoId;
 
-  const filteredTags = matchSorter(tags, search).slice(0, 10);
+  const filteredTags = useMemo(
+    () => matchSorter(tags, search).slice(0, 10),
+    [tags, search]
+  );
 
   const selectTag = useCallback(
     (tag: string) => {
@@ -123,7 +133,7 @@ export function TemplatedEditor<Name extends string = string>({
       insertTag(editor, tag);
       setTarget(null);
     },
-    [target, editor]
+    [editor, target]
   );
 
   const onKeyDown = useCallback<KeyboardEventHandler>(
@@ -162,7 +172,7 @@ export function TemplatedEditor<Name extends string = string>({
         }
       }
     },
-    [index, search, target]
+    [editor, index, target, filteredTags, selectTag]
   );
 
   useEffect(() => {
