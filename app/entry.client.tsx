@@ -4,7 +4,7 @@ import { RemixBrowser } from 'remix';
 
 if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const axe = require('@axe-core/react');
+  const axe = require('@axe-core/react').default;
   axe(React, ReactDOM, 1000);
 }
 

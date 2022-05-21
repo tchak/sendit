@@ -1,12 +1,5 @@
-import {
-  useMemo,
-  useCallback,
-  useRef,
-  useEffect,
-  useState,
-  ReactNode,
-  PropsWithChildren,
-} from 'react';
+import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
+import type { ReactElement, KeyboardEventHandler } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Editor,
@@ -25,6 +18,8 @@ import {
   useSelected,
   useFocused,
   useSlate,
+  RenderLeafProps,
+  RenderElementProps,
 } from 'slate-react';
 import clsx from 'clsx';
 import { matchSorter } from 'match-sorter';
@@ -39,17 +34,15 @@ import {
 } from 'react-icons/fa';
 import { useId } from '@reach/auto-id';
 
-import type {
-  Tag,
-  Link,
-  FormattedText,
-  CustomElement,
-} from '~/models/TemplateDocument';
+import type { Tag, Link, FormattedText } from '~/models/TemplateDocument';
 import { isLink, isTag } from '~/models/TemplateDocument';
 import { Button } from './Button';
 import { InputGroup } from './Form';
 
-const Portal = ({ children }: { children: ReactNode }) => {
+type RenderLeaf = (leaf: RenderLeafProps) => ReactElement;
+type RenderElement = (element: RenderElementProps) => ReactElement;
+
+const Portal = ({ children }: { children: ReactElement }) => {
   return typeof document === 'object'
     ? createPortal(children, document.body)
     : null;
@@ -106,8 +99,14 @@ export function TemplatedEditor<Name extends string = string>({
   const [target, setTarget] = useState<Range | undefined | null>();
   const [index, setIndex] = useState(0);
   const [search, setSearch] = useState('');
-  const renderLeaf = useCallback((props) => <Leaf {...props} />, []);
-  const renderElement = useCallback((props) => <Element {...props} />, []);
+  const renderLeaf = useCallback<RenderLeaf>(
+    (props) => <Leaf {...props} />,
+    []
+  );
+  const renderElement = useCallback<RenderElement>(
+    (props) => <Element {...props} />,
+    []
+  );
   const editor = useMemo(
     () => withInline(withReact(withHistory(createEditor()))),
     []
@@ -127,7 +126,7 @@ export function TemplatedEditor<Name extends string = string>({
     [target, editor]
   );
 
-  const onKeyDown = useCallback(
+  const onKeyDown = useCallback<KeyboardEventHandler>(
     (event) => {
       if (target) {
         switch (event.key) {
@@ -416,19 +415,7 @@ const isMarkActive = (
   return marks ? marks[format] === true : false;
 };
 
-type ElementProps = {
-  element: CustomElement;
-  attributes: PropsWithChildren<'span'>;
-  children?: ReactNode;
-};
-
-type LeafProps = {
-  leaf: FormattedText;
-  attributes: PropsWithChildren<'span'>;
-  children?: ReactNode;
-};
-
-const Leaf = ({ attributes, children, leaf }: LeafProps) => {
+const Leaf: RenderLeaf = ({ attributes, children, leaf }) => {
   if (leaf.bold) {
     children = <strong>{children}</strong>;
   }
@@ -455,7 +442,7 @@ const Leaf = ({ attributes, children, leaf }: LeafProps) => {
   );
 };
 
-const Element = (props: ElementProps) => {
+const Element: RenderElement = (props) => {
   const { attributes, children, element } = props;
   switch (element.type) {
     case 'tag':
@@ -471,7 +458,7 @@ const TagElement = ({
   attributes,
   children,
   element,
-}: ElementProps & { element: Tag }) => {
+}: RenderElementProps & { element: Tag }) => {
   const selected = useSelected();
   const focused = useFocused();
   return (
@@ -495,7 +482,7 @@ const LinkElement = ({
   attributes,
   children,
   element,
-}: ElementProps & { element: Link }) => {
+}: RenderElementProps & { element: Link }) => {
   const selected = useSelected();
   const focused = useFocused();
   return (

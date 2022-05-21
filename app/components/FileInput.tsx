@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef } from 'react';
 import { useState, useCallback, useEffect } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, DropzoneOptions } from 'react-dropzone';
 import { DocumentDownloadIcon, XCircleIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
 
@@ -31,13 +31,16 @@ export function FileInput<Name = string, Value = never>({
 }: FileProps<Name, Value>) {
   const [file, setFile] = useState<File>();
   const [text, setText] = useState<string>();
-  const onDrop = useCallback((acceptedFiles) => {
-    setFile(acceptedFiles[0]);
-  }, []);
+  const onDrop = useCallback<NonNullable<DropzoneOptions['onDrop']>>(
+    (acceptedFiles) => {
+      setFile(acceptedFiles[0]);
+    },
+    []
+  );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
-    accept,
+    accept: accept ? { [accept]: ['*'] } : undefined,
   });
 
   useEffect(() => {
