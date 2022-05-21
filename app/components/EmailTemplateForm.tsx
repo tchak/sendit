@@ -28,7 +28,7 @@ export function EmailTemplateFields({
         label="CSV"
         type="file"
         multiple={false}
-        accept="text/csv"
+        accept={{ 'text/csv': ['.csv'] }}
         required
         {...getProps('data', props)}
       />
@@ -94,7 +94,7 @@ export function EmailTemplateUpdateFields({
           type="file"
           required
           multiple={false}
-          accept="text/csv"
+          accept={{ 'text/csv': ['*.csv'] }}
           {...getProps('data', props)}
         />
       ) : (

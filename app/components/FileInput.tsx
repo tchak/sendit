@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef } from 'react';
 import { useState, useCallback, useEffect } from 'react';
-import { useDropzone, DropzoneOptions } from 'react-dropzone';
+import { useDropzone, DropzoneOptions, Accept } from 'react-dropzone';
 import { DocumentDownloadIcon, XCircleIcon } from '@heroicons/react/outline';
 import clsx from 'clsx';
 
@@ -8,7 +8,7 @@ import { InputGroup } from './Form';
 
 export type FileProps<Name = string, Value = never> = Omit<
   ComponentPropsWithoutRef<'input'>,
-  'defaultValue'
+  'defaultValue' | 'accept'
 > & {
   label: string;
   name: Name;
@@ -16,13 +16,13 @@ export type FileProps<Name = string, Value = never> = Omit<
   description?: string;
   errorMessage?: string;
   filled?: boolean;
+  accept?: Accept;
 };
 
 export function FileInput<Name = string, Value = never>({
   id,
   label,
   name,
-  defaultValue,
   description,
   errorMessage,
   accept,
@@ -40,7 +40,7 @@ export function FileInput<Name = string, Value = never>({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
-    accept: accept ? { [accept]: ['*'] } : undefined,
+    accept,
   });
 
   useEffect(() => {
