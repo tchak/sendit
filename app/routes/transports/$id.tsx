@@ -19,7 +19,7 @@ import { getParamsOrFail } from 'remix-params-helper';
 import { authenticator } from '~/util/auth.server';
 import * as EmailTransport from '~/models/EmailTransport';
 import { Button, LinkButton } from '~/components/Button';
-import { StateIcon, State } from '~/components/Spinner';
+import { StateIcon, State } from '~/components/state-icon';
 import { EmailTransportFields } from '~/components/EmailTransportForm';
 import { Header, Breadcrumb } from '~/components/Header';
 

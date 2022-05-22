@@ -20,7 +20,7 @@ import { getParamsOrFail, getSearchParamsOrFail } from 'remix-params-helper';
 import { authenticator } from '~/util/auth.server';
 import * as EmailTemplate from '~/models/EmailTemplate';
 import { Button, LinkButton } from '~/components/Button';
-import { StateIcon } from '~/components/Spinner';
+import { StateIcon } from '~/components/state-icon';
 import { EmailTemplateUpdateFields } from '~/components/EmailTemplateForm';
 import { Header, Breadcrumb } from '~/components/Header';
 

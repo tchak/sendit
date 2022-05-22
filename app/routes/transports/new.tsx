@@ -5,7 +5,7 @@ import { SkipNavContent } from '@reach/skip-nav';
 import { authenticator } from '~/util/auth.server';
 import * as EmailTransport from '~/models/EmailTransport';
 import { Button, LinkButton } from '~/components/Button';
-import { StateIcon } from '~/components/Spinner';
+import { StateIcon } from '~/components/state-icon';
 import { EmailTransportFields } from '~/components/EmailTransportForm';
 import { Header, Breadcrumb } from '~/components/Header';
 

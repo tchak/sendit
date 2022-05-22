@@ -12,7 +12,7 @@ import { authenticator } from '~/util/auth.server';
 import * as EmailTemplate from '~/models/EmailTemplate';
 import * as EmailTransport from '~/models/EmailTransport';
 import { Button, LinkButton } from '~/components/Button';
-import { StateIcon } from '~/components/Spinner';
+import { StateIcon } from '~/components/state-icon';
 import { EmailTemplateFields } from '~/components/EmailTemplateForm';
 import { Header, Breadcrumb } from '~/components/Header';
 

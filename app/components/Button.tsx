@@ -90,19 +90,30 @@ export type LinkButtonProps = LinkProps & ButtonClassNameProps;
 
 export const LinkButton = forwardRef<HTMLAnchorElement, LinkButtonProps>(
   (
-    { children, size, primary, full, className, isActive, label, to, ...props },
+    {
+      children,
+      size,
+      primary,
+      full,
+      className,
+      isActive,
+      label,
+      to,
+      disabled,
+      ...props
+    },
     ref
   ) => {
     const link = (
       <Link
         ref={ref}
-        to={to}
+        to={disabled ? '#' : to}
         className={buttonClassName({
           size,
           primary,
           full,
           isActive,
-          disabled: props.disabled,
+          disabled,
           className,
         })}
         {...props}
