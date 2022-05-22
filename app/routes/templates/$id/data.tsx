@@ -35,6 +35,7 @@ export default function EmailTemplateDataRoute() {
     <Dialog
       onClose={() => navigate(`/templates/${data.id}`)}
       initialFocus={cancelButtonRef}
+      size="large"
     >
       <DataGrid data={data.data} />
     </Dialog>

@@ -1,5 +1,6 @@
 import { Fragment, ReactElement, MutableRefObject } from 'react';
 import { Dialog as HeadlessDialog, Transition } from '@headlessui/react';
+import clsx from 'clsx';
 
 export function Dialog({
   children,
@@ -8,6 +9,7 @@ export function Dialog({
   icon,
   buttons,
   initialFocus,
+  size = 'normal',
 }: {
   children: ReactElement;
   onClose: () => void;
@@ -15,6 +17,7 @@ export function Dialog({
   icon?: ReactElement;
   buttons?: ReactElement | null;
   initialFocus?: MutableRefObject<null>;
+  size?: 'normal' | 'large';
 }) {
   return (
     <Transition.Root show={true} as={Fragment}>
@@ -51,7 +54,15 @@ export function Dialog({
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <div className="inline-block transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 sm:align-middle">
+            <div
+              className={clsx(
+                'inline-block transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:p-6 sm:align-middle',
+                {
+                  'sm:max-w-screen-lg': size == 'large',
+                  'sm:max-w-lg': size == 'normal',
+                }
+              )}
+            >
               <div>
                 {icon ? (
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
