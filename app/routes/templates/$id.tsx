@@ -1,4 +1,8 @@
-import type { LoaderFunction, MetaFunction, ActionFunction } from 'remix';
+import type {
+  LoaderFunction,
+  MetaFunction,
+  ActionFunction,
+} from '@remix-run/node';
 import {
   Form,
   useTransition,
@@ -6,8 +10,8 @@ import {
   useActionData,
   useNavigate,
   Link,
-} from 'remix';
-import { useState } from 'react';
+  Outlet,
+} from '@remix-run/react';
 import { SkipNavContent } from '@reach/skip-nav';
 import { z } from 'zod';
 import clsx from 'clsx';
@@ -19,7 +23,6 @@ import { Button, LinkButton } from '~/components/Button';
 import { StateIcon } from '~/components/Spinner';
 import { EmailTemplateUpdateFields } from '~/components/EmailTemplateForm';
 import { Header, Breadcrumb } from '~/components/Header';
-import { SendDialog } from '~/components/SendDialog';
 
 export const meta: MetaFunction = () => ({
   title: 'Sendit - Email Template',
@@ -69,10 +72,10 @@ type LoaderData = Awaited<ReturnType<typeof EmailTemplate.findById>>;
 type ActionData = EmailTemplate.ActionData;
 
 export default function EditEmailTransportRoute() {
+  const navigate = useNavigate();
   const transition = useTransition();
   const { states, ...data } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
-  const [open, setOpen] = useState(false);
   const hasPending = states.map(({ state }) => state).includes('Pending');
 
   return (
@@ -110,7 +113,7 @@ export default function EditEmailTransportRoute() {
           <Button
             primary
             disabled={!hasPending}
-            onClick={() => setOpen(true)}
+            onClick={() => navigate(`/templates/${data.id}/send`)}
             label={hasPending ? 'Send emails' : 'No emails to send'}
           >
             Send
@@ -143,11 +146,7 @@ export default function EditEmailTransportRoute() {
         ))}
       </ul>
 
-      <SendDialog
-        open={open}
-        close={() => setOpen(false)}
-        templateId={data.id}
-      />
+      <Outlet />
     </div>
   );
 }

@@ -121,7 +121,8 @@ export async function findDataById(id: string, userId: string) {
       data: true,
     },
   });
-  return { ...rest, data: CSV.parse(data) };
+  const { data: rows, meta } = CSV.parse(data);
+  return { ...rest, data: { rows, columns: meta.fields } };
 }
 
 export async function create(userId: string, form: FormData) {
