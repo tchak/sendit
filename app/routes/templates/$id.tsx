@@ -11,6 +11,7 @@ import {
   useNavigate,
   Link,
   Outlet,
+  useFetcher,
 } from '@remix-run/react';
 import { SkipNavContent } from '@reach/skip-nav';
 import { z } from 'zod';
@@ -77,6 +78,10 @@ export default function EditEmailTransportRoute() {
   const { states, ...data } = useLoaderData<LoaderData>();
   const actionData = useActionData<ActionData>();
   const hasPending = states.map(({ state }) => state).includes('Pending');
+  const reset = useFetcher();
+  const canReset =
+    data.messages.length > 0 &&
+    states.find(({ current }) => current)?.state == 'Error';
 
   return (
     <div>
@@ -110,14 +115,29 @@ export default function EditEmailTransportRoute() {
         />
 
         <div className="flex items-center justify-between">
-          <Button
-            primary
-            disabled={!hasPending}
-            onClick={() => navigate(`/templates/${data.id}/send`)}
-            label={hasPending ? 'Send emails' : 'No emails to send'}
-          >
-            Send
-          </Button>
+          <div className="flex items-center">
+            <Button
+              primary
+              disabled={!hasPending}
+              onClick={() => navigate(`/templates/${data.id}/send`)}
+              label={hasPending ? 'Send emails' : 'No emails to send'}
+            >
+              Send
+            </Button>
+            {canReset ? (
+              <Button
+                className="ml-2"
+                onClick={() =>
+                  reset.submit(
+                    {},
+                    { action: `/templates/${data.id}/reset`, method: 'post' }
+                  )
+                }
+              >
+                Reset
+              </Button>
+            ) : null}
+          </div>
           <div className="flex items-center">
             <Button
               type="submit"

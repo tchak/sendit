@@ -49,3 +49,14 @@ export async function markAsSent(
     },
   });
 }
+
+export async function reset(templateId: string, userId: string) {
+  await prisma.emailMessage.updateMany({
+    where: { template: { id: templateId, userId }, state: 'Error' },
+    data: {
+      state: 'Pending',
+      sentAt: null,
+      lastErrorMessage: null,
+    },
+  });
+}

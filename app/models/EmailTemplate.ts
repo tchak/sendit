@@ -50,8 +50,18 @@ const SchemaUpdate = z.object({
 export async function findById(
   id: string,
   userId: string,
-  state: EmailMessageState = 'Pending'
+  state?: EmailMessageState
 ) {
+  const states = await prisma.emailMessage.groupBy({
+    by: ['state'],
+    _count: true,
+    where: {
+      templateId: id,
+      to: { isEmpty: false },
+      text: { not: '' },
+    },
+    orderBy: { state: 'asc' },
+  });
   const { user, ...template } = await prisma.emailTemplate.findUnique({
     rejectOnNotFound: true,
     where: { id_userId: { id, userId } },
@@ -71,7 +81,11 @@ export async function findById(
           lastErrorMessage: true,
         },
         orderBy: { createdAt: 'asc' },
-        where: { to: { isEmpty: false }, text: { not: '' }, state },
+        where: {
+          to: { isEmpty: false },
+          text: { not: '' },
+          state: state ? state : states[0].state,
+        },
         take: 3,
       },
       user: {
@@ -83,16 +97,6 @@ export async function findById(
         },
       },
     },
-  });
-  const states = await prisma.emailMessage.groupBy({
-    by: ['state'],
-    _count: true,
-    where: {
-      templateId: id,
-      to: { isEmpty: false },
-      text: { not: '' },
-    },
-    orderBy: { state: 'asc' },
   });
   const data = CSV.parse(template.data);
   const body = Body.parse(template.body);
