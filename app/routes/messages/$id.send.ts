@@ -5,6 +5,7 @@ import { getParamsOrFail } from 'remix-params-helper';
 import { authenticator } from '~/util/auth.server';
 import { sendmail } from '~/util/sendmail.server';
 import * as EmailMessage from '~/models/EmailMessage';
+import * as EmailTransport from '~/models/EmailTransport';
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { id: messageId } = getParamsOrFail(
@@ -16,11 +17,12 @@ export const action: ActionFunction = async ({ request, params }) => {
   });
 
   const {
-    template: { transport },
+    template: { transportId },
     ...message
   } = await EmailMessage.findById(messageId, user.id);
 
-  if (transport) {
+  if (transportId) {
+    const transport = await EmailTransport.findById(transportId, user.id);
     try {
       await sendmail({
         transport: {

@@ -11,13 +11,7 @@ export function findById(id: string, userId: string) {
       subject: true,
       html: true,
       text: true,
-      template: {
-        select: {
-          transport: {
-            select: { host: true, port: true, username: true, password: true },
-          },
-        },
-      },
+      template: { select: { transportId: true } },
     },
   });
 }
